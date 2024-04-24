@@ -12,9 +12,5 @@ class Graph {
 };
 
 
-class Prims_Algorithms {
-
-};
-
 
 #endif //GRAPH_H
