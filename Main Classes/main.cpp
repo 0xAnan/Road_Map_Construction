@@ -1,8 +1,12 @@
-#include <iostream>
+#include "../GUI Classes/graphwidget.h"
 
-#include "../Headers/Graph.h"
+int main(int argc, char *argv[])
+{
+    QApplication app(argc, argv);
 
-int main() {
-    std::cout << "Hello, World!" << std::endl;
-    return 0;
+    GraphWidget widget;
+    widget.resize(800, 600);
+    widget.show();
+
+    return app.exec();
 }
