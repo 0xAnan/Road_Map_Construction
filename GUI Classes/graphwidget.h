@@ -1,4 +1,3 @@
-// Include necessary Qt modules
 #include <QApplication>
 #include <QWidget>
 #include <QPainter>
@@ -22,7 +21,7 @@ struct PointComparator {
 
 class Graph : public QWidget
 {
-    Q_OBJECT // Enables the use of signals and slots
+    Q_OBJECT
 
 public:
     // Constructor for the Graph class
@@ -33,6 +32,19 @@ public:
     QVector<QPoint> points;
     std::map<QPoint, QString, PointComparator> pointNames;
     QList<QPair<QPair<QPoint, QPoint>, double>> lines;
+
+    void addRelativePoint(const QPointF& point) {
+        relativePoints.push_back(point);
+    }
+
+    void removeRelativePoint() {
+        if (!relativePoints.isEmpty()) {
+            relativePoints.pop_back();
+        }
+    }
+    void clearRelativePoints() {
+        relativePoints.clear();
+    }
 
 protected:
     void paintEvent(QPaintEvent *event) override
@@ -64,21 +76,33 @@ protected:
 
     void resizeEvent(QResizeEvent *event) override
     {
-        points.clear();
-        pointNames.clear();
-        for (int i = 0; i < 5; ++i) {
-            addRandomPoint();
-        }
+        updatePoints();
         QWidget::resizeEvent(event);
     }
 
 private:
+    QVector<QPointF> relativePoints;  // Stores points as percentages
+
     void addRandomPoint() {
-        int x = QRandomGenerator::global()->bounded(this->width());
-        int y = QRandomGenerator::global()->bounded(this->height());
-        QPoint point(x, y);
-        points.push_back(point);
-        pointNames[point] = "Point " + QString::number(points.size());
+        qreal margin = 0.1;  // adjust this value to change the margin
+        qreal x = QRandomGenerator::global()->generateDouble() * (1.0 - 2*margin) + margin;
+        qreal y = QRandomGenerator::global()->generateDouble() * (1.0 - 2*margin) + margin;
+        QPointF point(x, y);
+        relativePoints.push_back(point);
+        updatePoints();
+    }
+
+
+    void updatePoints() {
+        points.clear();
+        pointNames.clear();
+        for (int i = 0; i < relativePoints.size(); ++i) {
+            int x = relativePoints[i].x() * width();
+            int y = relativePoints[i].y() * height();
+            QPoint point(x, y);
+            points.push_back(point);
+            pointNames[point] = "Point " + QString::number(i + 1);
+        }
     }
 };
 
@@ -131,7 +155,7 @@ GraphWidget(QWidget *parent = nullptr) : QWidget(parent)
     QVBoxLayout *sidebarLayout = new QVBoxLayout;
 
     QString buttonStyle = "QPushButton {"
-                          "background-color: #4CAF50;"  // Normal state color
+                          "background-color: #4CAF50;"
                           "border: none;"
                           "color: white;"
                           "padding: 15px 32px;"
@@ -141,39 +165,39 @@ GraphWidget(QWidget *parent = nullptr) : QWidget(parent)
                           "font-size: 16px;"
                           "margin: 4px 2px;"
                           "cursor: pointer;"
-                          "border-radius: 12px;}"  // Rounded corners
-                          "QPushButton:hover {background-color: #45a049;}";  // Hover state color
+                          "border-radius: 12px;}"
+                          "QPushButton:hover {background-color: #45a049;}";
 
-    QPushButton *addButton = new QPushButton(tr("Add Point"), this); // Button to add points
+    QPushButton *addButton = new QPushButton(tr("Add Point"), this);
     addButton->setStyleSheet(buttonStyle);
-    connect(addButton, &QPushButton::clicked, this, &GraphWidget::addPoint); // Connect button click to slot
+    connect(addButton, &QPushButton::clicked, this, &GraphWidget::addPoint);
     sidebarLayout->addWidget(addButton); // Add button to the sidebar layout
 
-    QPushButton *removeButton = new QPushButton(tr("Remove Last Point"), this); // Button to remove last point
+    QPushButton *removeButton = new QPushButton(tr("Remove Last Point"), this);
     removeButton->setStyleSheet(buttonStyle);
-    connect(removeButton, &QPushButton::clicked, this, &GraphWidget::removePoint); // Connect button click to slot
+    connect(removeButton, &QPushButton::clicked, this, &GraphWidget::removePoint);
     sidebarLayout->addWidget(removeButton); // Add button to the sidebar layout
 
-    QPushButton *clearButton = new QPushButton(tr("Clear All Points"), this); // Button to clear all points
+    QPushButton *clearButton = new QPushButton(tr("Clear All Points"), this);
     clearButton->setStyleSheet(buttonStyle);
-    connect(clearButton, &QPushButton::clicked, this, &GraphWidget::clearPoints); // Connect button click to slot
+    connect(clearButton, &QPushButton::clicked, this, &GraphWidget::clearPoints);
     sidebarLayout->addWidget(clearButton); // Add button to the sidebar layout
 
-    QPushButton *connectButton = new QPushButton(tr("Connect Points"), this); // Button to connect points
+    QPushButton *connectButton = new QPushButton(tr("Connect Points"), this);
     connectButton->setStyleSheet(buttonStyle);
-    connect(connectButton, &QPushButton::clicked, this, &GraphWidget::connectPoints); // Connect button click to slot
-    sidebarLayout->addWidget(connectButton); // Add button to the sidebar layout
+    connect(connectButton, &QPushButton::clicked, this, &GraphWidget::connectPoints);
+    sidebarLayout->addWidget(connectButton);
 
     QWidget *sidebar = new QWidget;
     sidebar->setLayout(sidebarLayout);
-    sidebar->setStyleSheet("background-color: #555555;"  // Sidebar color
-                           "border-radius: 15px;");  // Rounded corners for the sidebar
+    sidebar->setStyleSheet("background-color: #555555;"
+                           "border-radius: 15px;");
 
     graph = new Graph;
 
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
-    mainLayout->addWidget(sidebar); // Add sidebar to the main layout
-    mainLayout->addWidget(graph, 1); // Add graph to the main layout and allow it to expand
+    mainLayout->addWidget(sidebar);
+    mainLayout->addWidget(graph, 1);
 
     setLayout(mainLayout);
 }
@@ -181,41 +205,50 @@ GraphWidget(QWidget *parent = nullptr) : QWidget(parent)
 
 public slots:
     void addPoint()
+{
+    bool ok;
+    QString name = QInputDialog::getText(this, tr("Point Name"),
+                                         tr("Enter name for point:"), QLineEdit::Normal,
+                                         QString(), &ok);
+    if (ok && !name.isEmpty())
     {
-        bool ok;
-        QString name = QInputDialog::getText(this, tr("Point Name"),
-                                             tr("Enter name for point:"), QLineEdit::Normal,
-                                             QString(), &ok);
-        if (ok && !name.isEmpty())
-        {
-            int x = QRandomGenerator::global()->bounded(graph->width());
-            int y = QRandomGenerator::global()->bounded(graph->height());
-            // Add the new point to the graph
-            QPoint newPoint(x, y);
-            graph->points.push_back(newPoint);
-            graph->pointNames[newPoint] = name;
-            graph->update();
-        }
-    }
-
-    void removePoint()
-    {
-        if (!graph->points.isEmpty())
-        {
-            QPoint lastPoint = graph->points.last();
-            graph->points.pop_back();
-            graph->pointNames.erase(lastPoint);
-            graph->update();
-        }
-    }
-
-    void clearPoints()
-    {
-        graph->points.clear();
-        graph->pointNames.clear();
-        graph->lines.clear();
+        int x = QRandomGenerator::global()->bounded(graph->width());
+        int y = QRandomGenerator::global()->bounded(graph->height());
+        // Add the new point to the graph
+        QPoint newPoint(x, y);
+        graph->points.push_back(newPoint);
+        graph->pointNames[newPoint] = name;
+        // Add the new point to relativePoints
+        QPointF relativePoint((qreal)x / graph->width(), (qreal)y / graph->height());
+        graph->addRelativePoint(relativePoint);
         graph->update();
     }
+}
+
+    void removePoint()
+{
+    if (!graph->points.isEmpty())
+    {
+        QPoint lastPoint = graph->points.last();
+        graph->points.pop_back();
+        graph->pointNames.erase(lastPoint);
+        // Remove the last point from relativePoints
+        graph->removeRelativePoint();
+        graph->update();
+    }
+}
+
+
+    void clearPoints()
+{
+    graph->points.clear();
+    graph->pointNames.clear();
+    graph->lines.clear();
+    // Clear relativePoints as well
+    graph->clearRelativePoints();
+    graph->update();
+}
+
 
     void connectPoints()
     {
@@ -241,5 +274,5 @@ public slots:
     }
 
 private:
-    Graph *graph; // Pointer to the Graph object
+    Graph *graph;
 };
