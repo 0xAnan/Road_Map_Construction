@@ -7,10 +7,12 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QComboBox>
+#include <QDialog>
+#include <QLineEdit>
 #include <map>
 #include <cmath>
 
-// Comparator for QPoint
 struct PointComparator {
     bool operator()(const QPoint &a, const QPoint &b) const {
         if (a.x() != b.x()) return a.x() < b.x();
@@ -18,7 +20,6 @@ struct PointComparator {
     }
 };
 
-// Graph class inherits from QWidget and is responsible for drawing the points and lines
 class Graph : public QWidget
 {
     Q_OBJECT // Enables the use of signals and slots
@@ -26,33 +27,27 @@ class Graph : public QWidget
 public:
     // Constructor for the Graph class
     Graph(QWidget *parent = nullptr) : QWidget(parent) {
-        // Set a minimum size for the Graph widget
         setMinimumSize(300, 300);
     }
 
-    // Vectors to store the points
     QVector<QPoint> points;
-    // Map to store point names
     std::map<QPoint, QString, PointComparator> pointNames;
-    // List to store lines between points
-    QList<QPair<QPoint, QPoint>> lines;
+    QList<QPair<QPair<QPoint, QPoint>, double>> lines;
 
 protected:
-    // Overridden paint event to draw the graph
     void paintEvent(QPaintEvent *event) override
     {
         QPainter painter(this);
         painter.setRenderHint(QPainter::Antialiasing);
 
-        // Draw lines between points
         for (const auto &line : lines) {
-            painter.drawLine(line.first, line.second);
+            painter.drawLine(line.first.first, line.first.second);
+            QPoint midpoint = (line.first.first + line.first.second) / 2;
+            painter.drawText(midpoint, QString::number(line.second));
         }
 
-        // Draw points
         for (const auto &point : points) {
             painter.drawEllipse(point, 5, 5);
-            // Draw the point name next to the point
             auto it = pointNames.find(point);
             if (it != pointNames.end()) {
                 painter.drawText(point + QPoint(10, -10), it->second);
@@ -60,139 +55,189 @@ protected:
         }
     }
 
-    // Overridden show event to generate initial points
     void showEvent(QShowEvent *event) override
     {
-        // Generate 10 random points
-        for (int i = 0; i < 10; ++i) {
-            int x = QRandomGenerator::global()->bounded(this->width());
-            int y = QRandomGenerator::global()->bounded(this->height());
-            QPoint point(x, y);
-            points.push_back(point);
-            pointNames[point] = "Point " + QString::number(i + 1);
+        for (int i = 0; i < 5; ++i) {
+            addRandomPoint();
         }
     }
+
+    void resizeEvent(QResizeEvent *event) override
+    {
+        points.clear();
+        pointNames.clear();
+        for (int i = 0; i < 5; ++i) {
+            addRandomPoint();
+        }
+        QWidget::resizeEvent(event);
+    }
+
+private:
+    void addRandomPoint() {
+        int x = QRandomGenerator::global()->bounded(this->width());
+        int y = QRandomGenerator::global()->bounded(this->height());
+        QPoint point(x, y);
+        points.push_back(point);
+        pointNames[point] = "Point " + QString::number(points.size());
+    }
 };
-// GraphWidget class inherits from QWidget and contains the Graph and buttons
+
+
+class ConnectPointsDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    ConnectPointsDialog(const QStringList &pointNames, QWidget *parent = nullptr)
+        : QDialog(parent)
+    {
+        QVBoxLayout *layout = new QVBoxLayout(this);
+
+        point1ComboBox = new QComboBox;
+        point1ComboBox->addItems(pointNames);
+        layout->addWidget(point1ComboBox);
+
+        point2ComboBox = new QComboBox;
+        point2ComboBox->addItems(pointNames);
+        layout->addWidget(point2ComboBox);
+
+        valueLineEdit = new QLineEdit;
+        layout->addWidget(valueLineEdit);
+
+        QPushButton *okButton = new QPushButton(tr("OK"));
+        connect(okButton, &QPushButton::clicked, this, &QDialog::accept);
+        layout->addWidget(okButton);
+
+        setLayout(layout);
+    }
+
+    QString point1Name() const { return point1ComboBox->currentText(); }
+    QString point2Name() const { return point2ComboBox->currentText(); }
+    double value() const { return valueLineEdit->text().toDouble(); }
+
+private:
+    QComboBox *point1ComboBox;
+    QComboBox *point2ComboBox;
+    QLineEdit *valueLineEdit;
+};
+
 class GraphWidget : public QWidget
 {
     Q_OBJECT // Enables the use of signals and slots
 
 public:
-    // Constructor for the GraphWidget class
-    GraphWidget(QWidget *parent = nullptr) : QWidget(parent)
-    {
-        // Create a layout for the sidebar with buttons
-        QVBoxLayout *sidebarLayout = new QVBoxLayout;
-        QPushButton *addButton = new QPushButton(tr("Add Point"), this); // Button to add points
-        connect(addButton, &QPushButton::clicked, this, &GraphWidget::addPoint); // Connect button click to slot
-        sidebarLayout->addWidget(addButton); // Add button to the sidebar layout
+GraphWidget(QWidget *parent = nullptr) : QWidget(parent)
+{
+    QVBoxLayout *sidebarLayout = new QVBoxLayout;
 
-        QPushButton *removeButton = new QPushButton(tr("Remove Last Point"), this); // Button to remove last point
-        connect(removeButton, &QPushButton::clicked, this, &GraphWidget::removePoint); // Connect button click to slot
-        sidebarLayout->addWidget(removeButton); // Add button to the sidebar layout
+    QString buttonStyle = "QPushButton {"
+                          "background-color: #4CAF50;"  // Normal state color
+                          "border: none;"
+                          "color: white;"
+                          "padding: 15px 32px;"
+                          "text-align: center;"
+                          "text-decoration: none;"
+                          "display: inline-block;"
+                          "font-size: 16px;"
+                          "margin: 4px 2px;"
+                          "cursor: pointer;"
+                          "border-radius: 12px;}"  // Rounded corners
+                          "QPushButton:hover {background-color: #45a049;}";  // Hover state color
 
-        QPushButton *clearButton = new QPushButton(tr("Clear All Points"), this); // Button to clear all points
-        connect(clearButton, &QPushButton::clicked, this, &GraphWidget::clearPoints); // Connect button click to slot
-        sidebarLayout->addWidget(clearButton); // Add button to the sidebar layout
+    QPushButton *addButton = new QPushButton(tr("Add Point"), this); // Button to add points
+    addButton->setStyleSheet(buttonStyle);
+    connect(addButton, &QPushButton::clicked, this, &GraphWidget::addPoint); // Connect button click to slot
+    sidebarLayout->addWidget(addButton); // Add button to the sidebar layout
 
-        QPushButton *connectButton = new QPushButton(tr("Connect Points"), this); // Button to connect points
-        connect(connectButton, &QPushButton::clicked, this, &GraphWidget::connectPoints); // Connect button click to slot
-        sidebarLayout->addWidget(connectButton); // Add button to the sidebar layout
+    QPushButton *removeButton = new QPushButton(tr("Remove Last Point"), this); // Button to remove last point
+    removeButton->setStyleSheet(buttonStyle);
+    connect(removeButton, &QPushButton::clicked, this, &GraphWidget::removePoint); // Connect button click to slot
+    sidebarLayout->addWidget(removeButton); // Add button to the sidebar layout
 
-        // Create the sidebar widget and set its layout
-        QWidget *sidebar = new QWidget;
-        sidebar->setLayout(sidebarLayout);
-        sidebar->setStyleSheet("background-color: green;"); // Set the sidebar background color to green
+    QPushButton *clearButton = new QPushButton(tr("Clear All Points"), this); // Button to clear all points
+    clearButton->setStyleSheet(buttonStyle);
+    connect(clearButton, &QPushButton::clicked, this, &GraphWidget::clearPoints); // Connect button click to slot
+    sidebarLayout->addWidget(clearButton); // Add button to the sidebar layout
 
-        // Create the Graph object
-        graph = new Graph;
+    QPushButton *connectButton = new QPushButton(tr("Connect Points"), this); // Button to connect points
+    connectButton->setStyleSheet(buttonStyle);
+    connect(connectButton, &QPushButton::clicked, this, &GraphWidget::connectPoints); // Connect button click to slot
+    sidebarLayout->addWidget(connectButton); // Add button to the sidebar layout
 
-        // Create the main layout and add the sidebar and graph to it
-        QHBoxLayout *mainLayout = new QHBoxLayout(this);
-        mainLayout->addWidget(sidebar); // Add sidebar to the main layout
-        mainLayout->addWidget(graph, 1); // Add graph to the main layout and allow it to expand
+    QWidget *sidebar = new QWidget;
+    sidebar->setLayout(sidebarLayout);
+    sidebar->setStyleSheet("background-color: #555555;"  // Sidebar color
+                           "border-radius: 15px;");  // Rounded corners for the sidebar
 
-        // Set the main layout for the GraphWidget
-        setLayout(mainLayout);
-    }
+    graph = new Graph;
 
-// Slots for handling button clicks
+    QHBoxLayout *mainLayout = new QHBoxLayout(this);
+    mainLayout->addWidget(sidebar); // Add sidebar to the main layout
+    mainLayout->addWidget(graph, 1); // Add graph to the main layout and allow it to expand
+
+    setLayout(mainLayout);
+}
+
+
 public slots:
     void addPoint()
     {
         bool ok;
-        // Prompt the user to enter a name for the point
         QString name = QInputDialog::getText(this, tr("Point Name"),
                                              tr("Enter name for point:"), QLineEdit::Normal,
                                              QString(), &ok);
         if (ok && !name.isEmpty())
         {
-            // Get random coordinates for the new point
             int x = QRandomGenerator::global()->bounded(graph->width());
             int y = QRandomGenerator::global()->bounded(graph->height());
             // Add the new point to the graph
             QPoint newPoint(x, y);
             graph->points.push_back(newPoint);
             graph->pointNames[newPoint] = name;
-            // Update the graph to redraw with the new point
             graph->update();
         }
     }
 
-
     void removePoint()
     {
-        // Check if there are any points to remove
         if (!graph->points.isEmpty())
         {
-            // Remove the last point and name from the graph
             QPoint lastPoint = graph->points.last();
             graph->points.pop_back();
             graph->pointNames.erase(lastPoint);
-            // Update the graph to redraw without the removed point
             graph->update();
         }
     }
 
     void clearPoints()
     {
-        // Clear all points, names, and lines from the graph
         graph->points.clear();
         graph->pointNames.clear();
         graph->lines.clear();
-        // Update the graph to redraw without any points or lines
         graph->update();
     }
 
-
     void connectPoints()
     {
-        bool ok;
-        // Prompt the user to select two points to connect
         QStringList pointNamesList;
         for (const auto &pair : graph->pointNames) {
             pointNamesList << pair.second;
         }
-        QString point1Name = QInputDialog::getItem(this, tr("Select Point 1"),
-                                                   tr("Choose the first point to connect:"), pointNamesList, 0, false, &ok);
-        if (!ok || point1Name.isEmpty()) return;
+        ConnectPointsDialog dialog(pointNamesList, this);
+        if (dialog.exec() == QDialog::Accepted) {
+            QString point1Name = dialog.point1Name();
+            QString point2Name = dialog.point2Name();
+            double value = dialog.value();
 
-        QString point2Name = QInputDialog::getItem(this, tr("Select Point 2"),
-                                                   tr("Choose the second point to connect:"), pointNamesList, 0, false, &ok);
-        if (!ok || point2Name.isEmpty()) return;
+            QPoint point1, point2;
+            for (const auto &pair : graph->pointNames) {
+                if (pair.second == point1Name) point1 = pair.first;
+                if (pair.second == point2Name) point2 = pair.first;
+            }
 
-        // Find the points by name
-        QPoint point1, point2;
-        for (const auto &pair : graph->pointNames) {
-            if (pair.second == point1Name) point1 = pair.first;
-            if (pair.second == point2Name) point2 = pair.first;
+            graph->lines.push_back(qMakePair(qMakePair(point1, point2), value));
+            graph->update();
         }
-
-        // Add the line to the list of lines
-        graph->lines.push_back(qMakePair(point1, point2));
-        // Update the graph to redraw with the new line
-        graph->update();
     }
 
 private:
