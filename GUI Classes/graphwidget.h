@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QLabel>
 #include <QWidget>
 #include <QPainter>
 #include <QInputDialog>
@@ -11,6 +12,11 @@
 #include <QLineEdit>
 #include <map>
 #include <cmath>
+#include <QMouseEvent>
+#include <QLabel>
+#include <QPushButton>
+#include <QVBoxLayout>
+
 
 struct PointComparator {
     bool operator()(const QPoint &a, const QPoint &b) const {
@@ -18,6 +24,7 @@ struct PointComparator {
         return a.y() < b.y();
     }
 };
+
 
 class Graph : public QWidget
 {
@@ -32,31 +39,119 @@ public:
     QVector<QPoint> points;
     std::map<QPoint, QString, PointComparator> pointNames;
     QList<QPair<QPair<QPoint, QPoint>, double>> lines;
-
-    void addRelativePoint(const QPointF& point) {
-        relativePoints.push_back(point);
-    }
-
-    void removeRelativePoint() {
-        if (!relativePoints.isEmpty()) {
-            relativePoints.pop_back();
-        }
-    }
-    void clearRelativePoints() {
-        relativePoints.clear();
-    }
+    QVector<QPair<QPointF, QString>> relativePoints;
 
 protected:
+    void mousePressEvent(QMouseEvent *event) override
+    {
+        for (auto &point : points) {
+            if (QLineF(event->pos(), point).length() < 10.0) {
+                draggedPoint = &point;
+                break;
+            }
+        }
+    }
+
+    void mouseMoveEvent(QMouseEvent *event) override
+    {
+        if (draggedPoint) {
+            QPoint oldPos = *draggedPoint;
+            QPoint newPos = event->pos();
+            // Define a larger margin
+            int margin = 60;  // Adjust this value as needed
+
+            // Check if the new position is within the valid area
+            if (newPos.x() < margin || newPos.y() < margin || newPos.x() > width() - margin || newPos.y() > height() - margin) {
+                return;
+            }
+
+            // Update the point's position
+            *draggedPoint = newPos;
+
+            // Update the point's name in pointNames
+            QString name = pointNames[oldPos];
+            pointNames.erase(oldPos);
+            pointNames[newPos] = name;
+
+            // Update the corresponding point in relativePoints
+            for (auto &pair : relativePoints) {
+                if (pair.second == name) {
+                    pair.first = QPointF((qreal)newPos.x() / width(), (qreal)newPos.y() / height());
+                    break;
+                }
+            }
+
+            // Update the lines connected to the point
+            for (auto &line : lines) {
+                if (line.first.first == oldPos) {
+                    line.first.first = newPos;
+                } else if (line.first.second == oldPos) {
+                    line.first.second = newPos;
+                }
+            }
+
+            update();
+        }
+    }
+
+
+    void mouseReleaseEvent(QMouseEvent *event) override
+    {
+        draggedPoint = nullptr;
+    }
+
+    void contextMenuEvent(QContextMenuEvent *event) override
+    {
+        for (auto &point : points) {
+            if (QLineF(event->pos(), point).length() < 10.0) {
+                bool ok;
+                QString text = QInputDialog::getText(this, tr("Edit Point Name"),
+                                                     tr("New name:"), QLineEdit::Normal,
+                                                     pointNames[point], &ok);
+                if (ok && !text.isEmpty()) {
+                    // Update the point's name in pointNames
+                    pointNames[point] = text;
+
+                    // Update the corresponding point in relativePoints
+                    for (auto &pair : relativePoints) {
+                        if (pair.first == QPointF((qreal)point.x() / width(), (qreal)point.y() / height())) {
+                            pair.second = text;
+                            break;
+                        }
+                    }
+                    update();
+                }
+                break;
+            }
+        }
+    }
+
     void paintEvent(QPaintEvent *event) override
     {
         QPainter painter(this);
         painter.setRenderHint(QPainter::Antialiasing);
 
+        QPen pen;  // Declare the QPen object here
+
+        QFont font = painter.font() ;
+        font.setPointSize ( 14 ); // Set the size of font
+        font.setBold(true); // Make font bold
+        painter.setFont(font); // Set the font
+
         for (const auto &line : lines) {
             painter.drawLine(line.first.first, line.first.second);
             QPoint midpoint = (line.first.first + line.first.second) / 2;
+
+            // Set the color of the text to be more visible, e.g., white
+            pen.setColor(Qt::white);
+            painter.setPen(pen);
+
             painter.drawText(midpoint, QString::number(line.second));
         }
+
+        // Reset the color of the text for other drawings
+        pen.setColor(Qt::white);
+        painter.setPen(pen);
 
         for (const auto &point : points) {
             painter.drawEllipse(point, 5, 5);
@@ -66,6 +161,9 @@ protected:
             }
         }
     }
+
+
+
 
     void showEvent(QShowEvent *event) override
     {
@@ -81,27 +179,25 @@ protected:
     }
 
 private:
-    QVector<QPointF> relativePoints;  // Stores points as percentages
-
+    QPoint *draggedPoint = nullptr;
     void addRandomPoint() {
-        qreal margin = 0.1;  // adjust this value to change the margin
+        qreal margin = 0.1;
         qreal x = QRandomGenerator::global()->generateDouble() * (1.0 - 2*margin) + margin;
         qreal y = QRandomGenerator::global()->generateDouble() * (1.0 - 2*margin) + margin;
         QPointF point(x, y);
-        relativePoints.push_back(point);
+        relativePoints.push_back(qMakePair(point, "Point " + QString::number(relativePoints.size() + 1)));
         updatePoints();
     }
-
 
     void updatePoints() {
         points.clear();
         pointNames.clear();
-        for (int i = 0; i < relativePoints.size(); ++i) {
-            int x = relativePoints[i].x() * width();
-            int y = relativePoints[i].y() * height();
+        for (const auto &pair : relativePoints) {
+            int x = pair.first.x() * width();
+            int y = pair.first.y() * height();
             QPoint point(x, y);
             points.push_back(point);
-            pointNames[point] = "Point " + QString::number(i + 1);
+            pointNames[point] = pair.second;
         }
     }
 };
@@ -147,7 +243,7 @@ private:
 
 class GraphWidget : public QWidget
 {
-    Q_OBJECT // Enables the use of signals and slots
+    Q_OBJECT
 
 public:
 GraphWidget(QWidget *parent = nullptr) : QWidget(parent)
@@ -171,22 +267,33 @@ GraphWidget(QWidget *parent = nullptr) : QWidget(parent)
     QPushButton *addButton = new QPushButton(tr("Add Point"), this);
     addButton->setStyleSheet(buttonStyle);
     connect(addButton, &QPushButton::clicked, this, &GraphWidget::addPoint);
-    sidebarLayout->addWidget(addButton); // Add button to the sidebar layout
-
-    QPushButton *removeButton = new QPushButton(tr("Remove Last Point"), this);
-    removeButton->setStyleSheet(buttonStyle);
-    connect(removeButton, &QPushButton::clicked, this, &GraphWidget::removePoint);
-    sidebarLayout->addWidget(removeButton); // Add button to the sidebar layout
+    sidebarLayout->addWidget(addButton);
 
     QPushButton *clearButton = new QPushButton(tr("Clear All Points"), this);
     clearButton->setStyleSheet(buttonStyle);
     connect(clearButton, &QPushButton::clicked, this, &GraphWidget::clearPoints);
-    sidebarLayout->addWidget(clearButton); // Add button to the sidebar layout
+    sidebarLayout->addWidget(clearButton);
 
     QPushButton *connectButton = new QPushButton(tr("Connect Points"), this);
     connectButton->setStyleSheet(buttonStyle);
     connect(connectButton, &QPushButton::clicked, this, &GraphWidget::connectPoints);
     sidebarLayout->addWidget(connectButton);
+
+    QPushButton *removePointButton = new QPushButton(tr("Remove Point"), this);
+    removePointButton->setStyleSheet(buttonStyle);
+    connect(removePointButton, &QPushButton::clicked, this, &GraphWidget::removeSpecificPoint);
+    sidebarLayout->addWidget(removePointButton);
+
+    QPushButton *removeLineButton = new QPushButton(tr("Remove Line"), this);
+    removeLineButton->setStyleSheet(buttonStyle);
+    connect(removeLineButton, &QPushButton::clicked, this, &GraphWidget::removeSpecificLine);
+    sidebarLayout->addWidget(removeLineButton);
+
+    QPushButton *editLineButton = new QPushButton(tr("Edit Line"), this);
+    editLineButton->setStyleSheet(buttonStyle);
+    connect(editLineButton, &QPushButton::clicked, this, &GraphWidget::editLine);
+    sidebarLayout->addWidget(editLineButton);
+
 
     QWidget *sidebar = new QWidget;
     sidebar->setLayout(sidebarLayout);
@@ -205,50 +312,44 @@ GraphWidget(QWidget *parent = nullptr) : QWidget(parent)
 
 public slots:
     void addPoint()
-{
-    bool ok;
-    QString name = QInputDialog::getText(this, tr("Point Name"),
-                                         tr("Enter name for point:"), QLineEdit::Normal,
-                                         QString(), &ok);
-    if (ok && !name.isEmpty())
     {
-        int x = QRandomGenerator::global()->bounded(graph->width());
-        int y = QRandomGenerator::global()->bounded(graph->height());
-        // Add the new point to the graph
-        QPoint newPoint(x, y);
-        graph->points.push_back(newPoint);
-        graph->pointNames[newPoint] = name;
-        // Add the new point to relativePoints
-        QPointF relativePoint((qreal)x / graph->width(), (qreal)y / graph->height());
-        graph->addRelativePoint(relativePoint);
-        graph->update();
+        bool ok;
+        QString name = QInputDialog::getText(this, tr("Point Name"),
+                                             tr("Enter name for point:"), QLineEdit::Normal,
+                                             QString(), &ok);
+        if (ok && !name.isEmpty())
+        {
+            int x = QRandomGenerator::global()->bounded(graph->width());
+            int y = QRandomGenerator::global()->bounded(graph->height());
+            QPoint newPoint(x, y);
+            graph->points.push_back(newPoint);
+            graph->pointNames[newPoint] = name;
+            QPointF relativePoint((qreal)x / graph->width(), (qreal)y / graph->height());
+            graph->relativePoints.push_back(qMakePair(relativePoint, name));
+            graph->update();
+        }
     }
-}
 
     void removePoint()
-{
-    if (!graph->points.isEmpty())
     {
-        QPoint lastPoint = graph->points.last();
-        graph->points.pop_back();
-        graph->pointNames.erase(lastPoint);
-        // Remove the last point from relativePoints
-        graph->removeRelativePoint();
-        graph->update();
+        if (!graph->points.isEmpty())
+        {
+            QPoint lastPoint = graph->points.last();
+            graph->points.pop_back();
+            graph->pointNames.erase(lastPoint);
+            graph->relativePoints.pop_back();
+            graph->update();
+        }
     }
-}
-
 
     void clearPoints()
-{
-    graph->points.clear();
-    graph->pointNames.clear();
-    graph->lines.clear();
-    // Clear relativePoints as well
-    graph->clearRelativePoints();
-    graph->update();
-}
-
+    {
+        graph->points.clear();
+        graph->pointNames.clear();
+        graph->lines.clear();
+        graph->relativePoints.clear();
+        graph->update();
+    }
 
     void connectPoints()
     {
@@ -272,6 +373,76 @@ public slots:
             graph->update();
         }
     }
+    void editLine()
+{
+    QStringList lineNamesList;
+    for (const auto &line : graph->lines) {
+        lineNamesList << (graph->pointNames[line.first.first] + "-" + graph->pointNames[line.first.second]);
+    }
+
+    bool ok;
+    QString name = QInputDialog::getItem(this, tr("Edit Line"),
+                                         tr("Select line to edit:"), lineNamesList, 0, false, &ok);
+    if (ok && !name.isEmpty())
+    {
+        for (auto &line : graph->lines) {
+            if ((graph->pointNames[line.first.first] + "-" + graph->pointNames[line.first.second]) == name) {
+                bool ok;
+                double value = QInputDialog::getDouble(this, tr("Edit Line Value"),
+                                                       tr("New value:"), line.second, -10000, 10000, 2, &ok);
+                if (ok) {
+                    line.second = value;
+                    graph->update();
+                }
+                break;
+            }
+        }
+    }
+}
+    void removeSpecificPoint()
+{
+    QStringList pointNamesList;
+    for (const auto &pair : graph->pointNames) {
+        pointNamesList << pair.second;
+    }
+
+    bool ok;
+    QString name = QInputDialog::getItem(this, tr("Remove Point"),
+                                         tr("Select point to remove:"), pointNamesList, 0, false, &ok);
+    if (ok && !name.isEmpty())
+    {
+        for (int i = 0; i < graph->points.size(); ++i) {
+            if (graph->pointNames[graph->points[i]] == name) {
+                graph->pointNames.erase(graph->points[i]);
+                graph->points.remove(i);
+                graph->relativePoints.remove(i);
+                graph->update();
+                break;
+            }
+        }
+    }
+}
+    void removeSpecificLine()
+{
+    QStringList lineNamesList;
+    for (const auto &line : graph->lines) {
+        lineNamesList << (graph->pointNames[line.first.first] + "-" + graph->pointNames[line.first.second]);
+    }
+
+    bool ok;
+    QString name = QInputDialog::getItem(this, tr("Remove Line"),
+                                         tr("Select line to remove:"), lineNamesList, 0, false, &ok);
+    if (ok && !name.isEmpty())
+    {
+        for (int i = 0; i < graph->lines.size(); ++i) {
+            if ((graph->pointNames[graph->lines[i].first.first] + "-" + graph->pointNames[graph->lines[i].first.second]) == name) {
+                graph->lines.remove(i);
+                graph->update();
+                break;
+            }
+        }
+    }
+}
 
 private:
     Graph *graph;
