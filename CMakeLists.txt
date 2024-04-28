@@ -23,7 +23,8 @@ add_executable(Road_Map_Construction "Main Classes/main.cpp"
         "Graph Classes/Prims_Algorithm.cpp"
         "User Interface Classes/Graph_Managment.cpp"
         "User Interface Classes/Graph_Algorithms.cpp"
-        "GUI Classes/graphwidget.h")
+        "GUI Classes/graphwidget.h"
+)
 
 
 target_link_libraries(Road_Map_Construction PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Charts)

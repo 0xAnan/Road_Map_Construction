@@ -18,13 +18,100 @@
 #include <QVBoxLayout>
 
 
+class WelcomePage : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit WelcomePage(QWidget *parent = nullptr)
+        : QDialog(parent)
+    {
+        this->setWindowFlags(Qt::Window | Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);  // Add this line here
+
+        QVBoxLayout *layout = new QVBoxLayout(this);
+        layout->setSpacing(0);  // Remove the spacing between the widgets in the layout
+
+        QLabel *welcomeLabel = new QLabel("Welcome to the Graph Application!", this);
+        welcomeLabel->setAlignment(Qt::AlignCenter);
+        QFont font = welcomeLabel->font();
+        font.setPointSize(24);  // Increase the font size
+        font.setBold(true);  // Make the font bold
+        welcomeLabel->setFont(font);
+        welcomeLabel->setStyleSheet("QLabel { color : #008000; }");  // Set the text color to dark green
+        layout->addWidget(welcomeLabel, 0, Qt::AlignCenter);  // Center the label
+
+        layout->addStretch();  // Add a stretchable space before the buttons
+
+        QPushButton *startButton = new QPushButton("Start App", this);
+        startButton->setFixedWidth(200);  // Set a fixed width for the button
+        startButton->setStyleSheet(
+            "QPushButton {"
+            "background-color: #4CAF50;"  // Set the background color to green
+            "border: none;"
+            "color: white;"
+            "padding: 15px 32px;"
+            "text-align: center;"
+            "text-decoration: none;"
+            "display: inline-block;"
+            "font-size: 16px;"
+            "margin: 4px 2px;"
+            "cursor: pointer;"
+            "border-radius: 12px;}"
+            "QPushButton:hover {background-color: #45a049;}"  // Set the hover effect
+        );
+        connect(startButton, &QPushButton::clicked, this, &QDialog::accept);
+        layout->addWidget(startButton, 0, Qt::AlignCenter);  // Center the button
+
+        QPushButton *exitButton = new QPushButton("Exit", this);
+        exitButton->setFixedWidth(200);  // Set a fixed width for the button
+        exitButton->setStyleSheet(
+            "QPushButton {"
+            "background-color: #4CAF50;"  // Set the background color to green
+            "border: none;"
+            "color: white;"
+            "padding: 15px 32px;"
+            "text-align: center;"
+            "text-decoration: none;"
+            "display: inline-block;"
+            "font-size: 16px;"
+            "margin: 4px 2px;"
+            "cursor: pointer;"
+            "border-radius: 12px;}"
+            "QPushButton:hover {background-color: #45a049;}"  // Set the hover effect
+        );
+        connect(exitButton, &QPushButton::clicked, this, &QDialog::reject);
+        layout->addWidget(exitButton, 0, Qt::AlignCenter);  // Center the button
+
+        layout->addStretch();  // Add a stretchable space after the buttons
+
+        setLayout(layout);
+
+        // Load the image
+        backgroundImage.load("../Resources/Background.jpeg");
+    }
+
+protected:
+    void resizeEvent(QResizeEvent *event) override
+    {
+        // Scale the image to the size of the widget
+        QPixmap scaledImage = backgroundImage.scaled(this->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        QPalette palette;  // Create a palette
+        palette.setBrush(QPalette::Window, QBrush(scaledImage));  // Set the palette's background brush to the QPixmap
+        this->setPalette(palette);  // Set the widget's palette
+
+        QDialog::resizeEvent(event);
+    }
+
+private:
+    QPixmap backgroundImage;
+};
+
 struct PointComparator {
     bool operator()(const QPoint &a, const QPoint &b) const {
         if (a.x() != b.x()) return a.x() < b.x();
         return a.y() < b.y();
     }
 };
-
 
 class Graph : public QWidget
 {
@@ -294,6 +381,10 @@ GraphWidget(QWidget *parent = nullptr) : QWidget(parent)
     connect(editLineButton, &QPushButton::clicked, this, &GraphWidget::editLine);
     sidebarLayout->addWidget(editLineButton);
 
+    QPushButton *exitButton = new QPushButton(tr("Exit to Main Menu"), this);
+    exitButton->setStyleSheet(buttonStyle);
+    connect(exitButton, &QPushButton::clicked, this, &GraphWidget::exitToMainMenu);
+    sidebarLayout->addWidget(exitButton);
 
     QWidget *sidebar = new QWidget;
     sidebar->setLayout(sidebarLayout);
@@ -442,6 +533,13 @@ public slots:
             }
         }
     }
+}
+    void exitToMainMenu()
+{
+    this->close();  // Close the graph widget
+    WelcomePage welcomePage(parentWidget());
+    welcomePage.resize(800, 600);  // Set the size of the welcome page
+    welcomePage.exec();  // Show the welcome page
 }
 
 private:
