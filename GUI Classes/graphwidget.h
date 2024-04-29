@@ -254,8 +254,10 @@ protected:
 
     void showEvent(QShowEvent *event) override
     {
-        for (int i = 0; i < 5; ++i) {
-            addRandomPoint();
+        if (points.isEmpty()) {
+            for (int i = 0; i < 5; ++i) {
+                addRandomPoint();
+            }
         }
     }
 
@@ -333,6 +335,7 @@ class GraphWidget : public QWidget
     Q_OBJECT
 
 public:
+
 GraphWidget(QWidget *parent = nullptr) : QWidget(parent)
 {
     QVBoxLayout *sidebarLayout = new QVBoxLayout;
@@ -400,7 +403,8 @@ GraphWidget(QWidget *parent = nullptr) : QWidget(parent)
     setLayout(mainLayout);
 }
 
-
+    signals:
+        void exitToMainMenu();
 public slots:
     void addPoint()
     {
@@ -534,13 +538,8 @@ public slots:
         }
     }
 }
-    void exitToMainMenu()
-{
-    this->close();  // Close the graph widget
-    WelcomePage welcomePage(parentWidget());
-    welcomePage.resize(800, 600);  // Set the size of the welcome page
-    welcomePage.exec();  // Show the welcome page
-}
+
+
 
 private:
     Graph *graph;
