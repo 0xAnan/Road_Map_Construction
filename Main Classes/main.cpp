@@ -1,4 +1,6 @@
-#include "../GUI Classes/graphwidget.h"
+#include "../GUI Classes/graphpage.h"
+#include "../GUI Classes/welcomepage.h"
+
 
 int main(int argc, char *argv[])
 {

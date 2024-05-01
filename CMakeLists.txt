@@ -25,7 +25,8 @@ add_executable(Road_Map_Construction "Main Classes/main.cpp"
         "Graph Classes/Prims_Algorithm.cpp"
         "User Interface Classes/Graph_Managment.cpp"
         "User Interface Classes/Graph_Algorithms.cpp"
-        "GUI Classes/graphwidget.h"
+        "GUI Classes/graphpage.h"
+        "GUI Classes/welcomepage.h"
 )
 
 

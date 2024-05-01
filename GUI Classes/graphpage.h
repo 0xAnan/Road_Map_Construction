@@ -10,102 +10,16 @@
 #include <QComboBox>
 #include <QDialog>
 #include <QLineEdit>
+#include <QMouseEvent>
+#include <QContextMenuEvent>
+#include <QResizeEvent>
+#include <QShowEvent>
+#include <QPaintEvent>
+
 #include <map>
 #include <cmath>
-#include <QMouseEvent>
-#include <QLabel>
-#include <QPushButton>
-#include <QVBoxLayout>
 
-
-class WelcomePage : public QDialog
-{
-    Q_OBJECT
-
-public:
-    explicit WelcomePage(QWidget *parent = nullptr)
-        : QDialog(parent)
-    {
-        this->setWindowFlags(Qt::Window | Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);  // Add this line here
-
-        QVBoxLayout *layout = new QVBoxLayout(this);
-        layout->setSpacing(0);  // Remove the spacing between the widgets in the layout
-
-        QLabel *welcomeLabel = new QLabel("Welcome to the Graph Application!", this);
-        welcomeLabel->setAlignment(Qt::AlignCenter);
-        QFont font = welcomeLabel->font();
-        font.setPointSize(24);  // Increase the font size
-        font.setBold(true);  // Make the font bold
-        welcomeLabel->setFont(font);
-        welcomeLabel->setStyleSheet("QLabel { color : #008000; }");  // Set the text color to dark green
-        layout->addWidget(welcomeLabel, 0, Qt::AlignCenter);  // Center the label
-
-        layout->addStretch();  // Add a stretchable space before the buttons
-
-        QPushButton *startButton = new QPushButton("Start App", this);
-        startButton->setFixedWidth(200);  // Set a fixed width for the button
-        startButton->setStyleSheet(
-            "QPushButton {"
-            "background-color: #4CAF50;"  // Set the background color to green
-            "border: none;"
-            "color: white;"
-            "padding: 15px 32px;"
-            "text-align: center;"
-            "text-decoration: none;"
-            "display: inline-block;"
-            "font-size: 16px;"
-            "margin: 4px 2px;"
-            "cursor: pointer;"
-            "border-radius: 12px;}"
-            "QPushButton:hover {background-color: #45a049;}"  // Set the hover effect
-        );
-        connect(startButton, &QPushButton::clicked, this, &QDialog::accept);
-        layout->addWidget(startButton, 0, Qt::AlignCenter);  // Center the button
-
-        QPushButton *exitButton = new QPushButton("Exit", this);
-        exitButton->setFixedWidth(200);  // Set a fixed width for the button
-        exitButton->setStyleSheet(
-            "QPushButton {"
-            "background-color: #4CAF50;"  // Set the background color to green
-            "border: none;"
-            "color: white;"
-            "padding: 15px 32px;"
-            "text-align: center;"
-            "text-decoration: none;"
-            "display: inline-block;"
-            "font-size: 16px;"
-            "margin: 4px 2px;"
-            "cursor: pointer;"
-            "border-radius: 12px;}"
-            "QPushButton:hover {background-color: #45a049;}"  // Set the hover effect
-        );
-        connect(exitButton, &QPushButton::clicked, this, &QDialog::reject);
-        layout->addWidget(exitButton, 0, Qt::AlignCenter);  // Center the button
-
-        layout->addStretch();  // Add a stretchable space after the buttons
-
-        setLayout(layout);
-
-        // Load the image
-        backgroundImage.load("../Resources/Background.jpeg");
-    }
-
-protected:
-    void resizeEvent(QResizeEvent *event) override
-    {
-        // Scale the image to the size of the widget
-        QPixmap scaledImage = backgroundImage.scaled(this->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-        QPalette palette;  // Create a palette
-        palette.setBrush(QPalette::Window, QBrush(scaledImage));  // Set the palette's background brush to the QPixmap
-        this->setPalette(palette);  // Set the widget's palette
-
-        QDialog::resizeEvent(event);
-    }
-
-private:
-    QPixmap backgroundImage;
-};
-
+// Comparator for QPoint objects
 struct PointComparator {
     bool operator()(const QPoint &a, const QPoint &b) const {
         if (a.x() != b.x()) return a.x() < b.x();
@@ -113,6 +27,7 @@ struct PointComparator {
     }
 };
 
+// Graph class represents the graph visualization
 class Graph : public QWidget
 {
     Q_OBJECT
@@ -123,14 +38,16 @@ public:
         setMinimumSize(300, 300);
     }
 
-    QVector<QPoint> points;
-    std::map<QPoint, QString, PointComparator> pointNames;
-    QList<QPair<QPair<QPoint, QPoint>, double>> lines;
-    QVector<QPair<QPointF, QString>> relativePoints;
+    QVector<QPoint> points;  // Stores the points in the graph
+    std::map<QPoint, QString, PointComparator> pointNames;  // Stores the names of the points
+    QList<QPair<QPair<QPoint, QPoint>, double>> lines;  // Stores the lines in the graph
+    QVector<QPair<QPointF, QString>> relativePoints;  // Stores the points relative to the size of the widget
 
 protected:
+    // Event handler for mouse press events
     void mousePressEvent(QMouseEvent *event) override
     {
+        // If a point is clicked, store it in draggedPoint
         for (auto &point : points) {
             if (QLineF(event->pos(), point).length() < 10.0) {
                 draggedPoint = &point;
@@ -139,11 +56,14 @@ protected:
         }
     }
 
+    // Event handler for mouse move events
     void mouseMoveEvent(QMouseEvent *event) override
     {
+        // If a point is being dragged, update its position
         if (draggedPoint) {
             QPoint oldPos = *draggedPoint;
             QPoint newPos = event->pos();
+
             // Define a larger margin
             int margin = 60;  // Adjust this value as needed
 
@@ -181,14 +101,17 @@ protected:
         }
     }
 
-
+    // Event handler for mouse release events
     void mouseReleaseEvent(QMouseEvent *event) override
     {
+        // Stop dragging the point
         draggedPoint = nullptr;
     }
 
+    // Event handler for context menu events
     void contextMenuEvent(QContextMenuEvent *event) override
     {
+        // If a point is right-clicked, allow the user to edit its name
         for (auto &point : points) {
             if (QLineF(event->pos(), point).length() < 10.0) {
                 bool ok;
@@ -213,6 +136,7 @@ protected:
         }
     }
 
+    // Event handler for paint events
     void paintEvent(QPaintEvent *event) override
     {
         QPainter painter(this);
@@ -225,6 +149,7 @@ protected:
         font.setBold(true); // Make font bold
         painter.setFont(font); // Set the font
 
+        // Draw lines
         for (const auto &line : lines) {
             painter.drawLine(line.first.first, line.first.second);
             QPoint midpoint = (line.first.first + line.first.second) / 2;
@@ -240,6 +165,7 @@ protected:
         pen.setColor(Qt::white);
         painter.setPen(pen);
 
+        // Draw points
         for (const auto &point : points) {
             painter.drawEllipse(point, 5, 5);
             auto it = pointNames.find(point);
@@ -249,11 +175,10 @@ protected:
         }
     }
 
-
-
-
+    // Event handler for show events
     void showEvent(QShowEvent *event) override
     {
+        // Add random points if none exist
         if (points.isEmpty()) {
             for (int i = 0; i < 5; ++i) {
                 addRandomPoint();
@@ -261,14 +186,18 @@ protected:
         }
     }
 
+    // Event handler for resize events
     void resizeEvent(QResizeEvent *event) override
     {
+        // Update the positions of the points
         updatePoints();
         QWidget::resizeEvent(event);
     }
 
 private:
-    QPoint *draggedPoint = nullptr;
+    QPoint *draggedPoint = nullptr;  // The point currently being dragged
+
+    // Add a random point to the graph
     void addRandomPoint() {
         qreal margin = 0.1;
         qreal x = QRandomGenerator::global()->generateDouble() * (1.0 - 2*margin) + margin;
@@ -278,6 +207,7 @@ private:
         updatePoints();
     }
 
+    // Update the positions of the points
     void updatePoints() {
         points.clear();
         pointNames.clear();
@@ -291,7 +221,7 @@ private:
     }
 };
 
-
+// Dialog for connecting points
 class ConnectPointsDialog : public QDialog
 {
     Q_OBJECT
@@ -302,17 +232,21 @@ public:
     {
         QVBoxLayout *layout = new QVBoxLayout(this);
 
+        // Combo box for selecting the first point
         point1ComboBox = new QComboBox;
         point1ComboBox->addItems(pointNames);
         layout->addWidget(point1ComboBox);
 
+        // Combo box for selecting the second point
         point2ComboBox = new QComboBox;
         point2ComboBox->addItems(pointNames);
         layout->addWidget(point2ComboBox);
 
+        // Line edit for entering the value of the line
         valueLineEdit = new QLineEdit;
         layout->addWidget(valueLineEdit);
 
+        // OK button
         QPushButton *okButton = new QPushButton(tr("OK"));
         connect(okButton, &QPushButton::clicked, this, &QDialog::accept);
         layout->addWidget(okButton);
@@ -329,7 +263,6 @@ private:
     QComboBox *point2ComboBox;
     QLineEdit *valueLineEdit;
 };
-
 class GraphWidget : public QWidget
 {
     Q_OBJECT
