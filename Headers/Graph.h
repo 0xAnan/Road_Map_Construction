@@ -8,6 +8,22 @@
 #include<list>
 #include<utility>
 #include<unordered_map>
+using namespace std;
+class City
+{
+public:
+    string cityname;
+    City();
+    City(string cname);
+    string getCityname();
+    string setCityname(string cname);
+    void update_cityname(string cname);
+};
+
+
+
+
+
 class graph{
 public:
     unordered_map<string, list<pair<string, int>>> mymap;
@@ -18,10 +34,5 @@ public:
     void addcity(City newcity);
     void deletecity(string cityname);
     void printadjcentlist();
-
-
-
-
-
 };
 #endif //GRAPH_H

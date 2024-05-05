@@ -1,38 +1,31 @@
-#include<iostream>
-#include<list>
-#include<utility>
-#include<unordered_map>
-using namespace std;
+#include "graph.h"
 
-class City
-{
-public:
-    string cityname;
-    City() {
+
+
+
+    City::City() {
         cityname = " ";
     }
-    City(string cname) {
+    City::City(string cname) {
         cityname = cname;
     }
-    string getCityname() {
+    string City::getCityname() {
         return cityname;
     }
-    string setCityname(string cname) {
+    string City:: setCityname(string cname) {
         cityname = cname;
         return cityname;
     }
-    void update_cityname(string cname) {
+    void City ::update_cityname(string cname) {
         cityname = cname;
         cout << "City name changed succesfully";
     }
-};
 
-class graph
-{
-public:
-    unordered_map<string, list<pair<string, int>>> mymap;
 
-    bool checkedge(string city1, string city2) {
+
+
+
+    bool graph:: checkedge(string city1, string city2) {
         if (checkcity(city1)) {
             for (auto edge : mymap[city1]) {
                 if (edge.first == city2) {
@@ -43,7 +36,7 @@ public:
         return false;
     }
 
-    void addedge(string city1, string city2, int km)
+    void graph:: addedge(string city1, string city2, int km)
     {
         bool check1 = checkcity(city1);
         bool check2 = checkcity(city2);
@@ -63,7 +56,7 @@ public:
         }
     }
 
-    void delete_edge(string city1, string city2) {
+    void graph:: delete_edge(string city1, string city2) {
         bool check = checkedge(city1, city2);
         if (check == true) {
             for (auto it = mymap[city1].begin(); it != mymap[city1].end(); ) {
@@ -89,7 +82,7 @@ public:
         }
     }
 
-    bool checkcity(string cityname) {
+    bool graph:: checkcity(string cityname) {
         if (mymap.find(cityname) != mymap.end()) {
             return true;
         }
@@ -97,7 +90,7 @@ public:
             return false;
         }
     }
-    void addcity(City newcity) {
+    void graph ::addcity(City newcity) {
         bool check = checkcity(newcity.getCityname());
         if (check == true) {
             cout << "City with this name already exists ";
@@ -108,7 +101,7 @@ public:
         }
     }
 
-    void deletecity(string cityname) {
+    void graph:: deletecity(string cityname) {
         if (checkcity(cityname)) {
             mymap.erase(cityname);
             cout << "City deleted succesfully ";
@@ -118,7 +111,7 @@ public:
         }
     }
 
-    void printadjcentlist()
+    void graph:: printadjcentlist()
     {
         for (auto c : mymap)
         {
