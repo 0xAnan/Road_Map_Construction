@@ -4,5 +4,24 @@
 
 #ifndef GRAPH_H
 #define GRAPH_H
+#include<iostream>
+#include<list>
+#include<utility>
+#include<unordered_map>
+class graph{
+public:
+    unordered_map<string, list<pair<string, int>>> mymap;
+    bool checkedge(string city1, string city2);
+    void addedge(string city1, string city2, int km);
+    void delete_edge(string city1, string city2);
+    bool checkcity(string cityname);
+    void addcity(City newcity);
+    void deletecity(string cityname);
+    void printadjcentlist();
 
+
+
+
+
+};
 #endif //GRAPH_H
