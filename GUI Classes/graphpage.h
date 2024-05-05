@@ -18,6 +18,7 @@
 
 #include <map>
 #include <cmath>
+#include <iostream>
 
 // Comparator for QPoint objects
 struct PointComparator {
@@ -28,13 +29,13 @@ struct PointComparator {
 };
 
 // Graph class represents the graph visualization
-class Graph : public QWidget
+class GraphGUI : public QWidget
 {
     Q_OBJECT
 
 public:
     // Constructor for the Graph class
-    Graph(QWidget *parent = nullptr) : QWidget(parent) {
+    GraphGUI(QWidget *parent = nullptr) : QWidget(parent) {
         setMinimumSize(300, 300);
     }
 
@@ -327,7 +328,7 @@ GraphWidget(QWidget *parent = nullptr) : QWidget(parent)
     sidebar->setStyleSheet("background-color: #555555;"
                            "border-radius: 15px;");
 
-    graph = new Graph;
+    graph = new GraphGUI;
 
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
     mainLayout->addWidget(sidebar);
@@ -356,6 +357,7 @@ public slots:
             graph->relativePoints.push_back(qMakePair(relativePoint, name));
             graph->update();
         }
+    //validateUser(name,password);
     }
 
     void removePoint()
@@ -475,5 +477,5 @@ public slots:
 
 
 private:
-    Graph *graph;
+    GraphGUI *graph;
 };
