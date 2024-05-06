@@ -5,7 +5,6 @@
 #include <QVBoxLayout>  // For the vertical layout
 #include <QDialog>  // Base class for dialogs
 #include <QPixmap>  // For the background image
-#include <QResizeEvent>  // For the resize event
 
 class WelcomePage : public QDialog
 {

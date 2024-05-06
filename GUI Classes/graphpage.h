@@ -5,16 +5,11 @@
 #include <QInputDialog>
 #include <QRandomGenerator>
 #include <QPushButton>
-#include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QComboBox>
 #include <QDialog>
 #include <QLineEdit>
-#include <QMouseEvent>
 #include <QContextMenuEvent>
-#include <QResizeEvent>
-#include <QShowEvent>
-#include <QPaintEvent>
 
 #include <map>
 #include <cmath>
