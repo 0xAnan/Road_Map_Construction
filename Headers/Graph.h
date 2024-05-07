@@ -1,9 +1,9 @@
-#ifndef GRAPH_H
-#define GRAPH_H
+#pragma once
 #include<iostream>
 #include<list>
 #include<utility>
 #include<unordered_map>
+#include <queue>
 using namespace std;
 class City
 {
@@ -16,10 +16,6 @@ public:
     void update_cityname(string cname);
 };
 
-
-
-
-
 class graph{
 public:
     unordered_map<string, list<pair<string, int>>> mymap;
@@ -30,5 +26,6 @@ public:
     void addcity(City newcity);
     void deletecity(string cityname);
     void printadjcentlist();
+    queue<string> BFS_algo( graph g,string startcity);
 };
-#endif //GRAPH_H
+ //GRAPH_H

@@ -1,7 +1,9 @@
 #include "Headers/Graph.h"
 
+#include <queue>
 
-    City::City() {
+
+City::City() {
         cityname = " ";
     }
     City::City(string cname) {
@@ -123,5 +125,28 @@
                 cout << "-------------------------------" << endl;
             }
         }
+    }
+    queue <string> graph :: BFS_algo( graph g,string startcity)
+    {
+        queue<string>store;
+        unordered_map<string,bool>visted;
+        queue<string>q;
+        visted[startcity]=true;
+        q.push(startcity);
+        while(! q.empty()){
+            string currentcity=q.front();
+            q.pop();
+            store.push(currentcity);
+            for(auto neighbor : g.mymap[currentcity])
+            {
+                string neighborcity=neighbor.first;
+                if(!visted[neighborcity])
+                {
+                    visted[neighborcity]=true;
+                    q.push(neighborcity);
+                }
+            }
+        }
+    return store;
     }
 
