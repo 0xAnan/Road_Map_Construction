@@ -30,6 +30,8 @@ public:
     void addcity(City newcity);
     void deletecity(string cityname);
     void printadjcentlist();
+	void clearmap();
+	void updadeedge(string city1,string city2,int km)
     queue<string> graph::DFS(string start_city);
     queue<string> BFS_algo( graph g,string startcity);
 };

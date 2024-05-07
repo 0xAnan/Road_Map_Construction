@@ -113,6 +113,34 @@ City::City() {
     }
 
 
+void graph:: clearmap(){
+    mymap.clear();
+}
+void graph::updadeedge(string city1,string city2,int km){
+    bool edgeExists = checkedge(city1, city2);
+    if (edgeExists) {
+        delete_edge(city1, city2);
+    }
+    mymap[city1].push_back(make_pair(city2, km));
+    mymap[city2].push_back(make_pair(city1, km));
+}
+
+void graph:: printadjcentlist()
+{
+    for (auto c : mymap)
+    {
+        string city = c.first;
+        list<pair<string, int>> details = c.second;
+        for (auto dis : details)
+        {
+            cout << " destenation: " << dis.first << endl;
+            cout << " distance from " << c.first << " to " << dis.first;
+            cout << dis.second << " KM" << endl;
+            cout << "-------------------------------" << endl;
+        }
+    }
+}
+
 queue <string> graph::DFS(string start_city)
 {
         unordered_set<string> visited;
@@ -137,21 +165,7 @@ queue <string> graph::DFS(string start_city)
         }
         return queue;
     }
-    void graph:: printadjcentlist()
-    {
-        for (auto c : mymap)
-        {
-            string city = c.first;
-            list<pair<string, int>> details = c.second;
-            for (auto dis : details)
-            {
-                cout << " destenation: " << dis.first << endl;
-                cout << " distance from " << c.first << " to " << dis.first;
-                cout << dis.second << " KM" << endl;
-                cout << "-------------------------------" << endl;
-            }
-        }
-    }
+
     queue <string> graph :: BFS_algo( graph g,string startcity)
     {
         queue<string>store;
