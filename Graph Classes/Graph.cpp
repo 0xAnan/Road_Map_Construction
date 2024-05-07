@@ -1,5 +1,6 @@
 #include "Headers/Graph.h"
-
+#include <stack>
+#include <unordered_set>
 #include <queue>
 
 
@@ -111,6 +112,31 @@ City::City() {
         }
     }
 
+
+queue <string> graph::DFS(string start_city)
+{
+        unordered_set<string> visited;
+        stack<string> stack;
+        queue<string> queue;
+        stack.push(start_city);
+        while (!stack.empty()) {
+            string current_city = stack.top();
+            stack.pop();
+            queue.push(current_city);
+
+            if (visited.find(current_city) == visited.end()) {
+                visited.insert(current_city);
+
+
+                for (auto neighbor : mymap[current_city]) {
+                    if (visited.find(neighbor.first) == visited.end()) {
+                        stack.push(neighbor.first);
+                    }
+                }
+            }
+        }
+        return queue;
+    }
     void graph:: printadjcentlist()
     {
         for (auto c : mymap)
@@ -147,6 +173,6 @@ City::City() {
                 }
             }
         }
-    return store;
+        return store;
     }
 

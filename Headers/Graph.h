@@ -3,7 +3,7 @@
 #include<list>
 #include<utility>
 #include<unordered_map>
-#include <queue>
+#include<queue>
 using namespace std;
 class City
 {
@@ -16,6 +16,10 @@ public:
     void update_cityname(string cname);
 };
 
+
+
+
+
 class graph{
 public:
     unordered_map<string, list<pair<string, int>>> mymap;
@@ -26,6 +30,7 @@ public:
     void addcity(City newcity);
     void deletecity(string cityname);
     void printadjcentlist();
+    queue<string> graph::DFS(string start_city);
     queue<string> BFS_algo( graph g,string startcity);
 };
  //GRAPH_H
