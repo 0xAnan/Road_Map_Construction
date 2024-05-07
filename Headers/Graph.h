@@ -31,6 +31,9 @@ public:
     void deletecity(string cityname);
     void printadjcentlist();
     queue<string> DFS(string start_city);
+	void clearmap();
+	void updadeedge(string city1,string city2,int km)
+    queue<string> graph::DFS(string start_city);
     queue<string> BFS_algo( graph g,string startcity);
 };
  //GRAPH_H
