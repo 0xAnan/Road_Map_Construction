@@ -17,10 +17,8 @@ City::City() {
         cityname = cname;
         return cityname;
     }
-    void City ::update_cityname(string cname) {
-        cityname = cname;
-        cout << "City name changed succesfully";
-    }
+  /*  void City ::update_cityname(string cityname,string newname) {}*/
+
 
 
 
@@ -91,6 +89,14 @@ City::City() {
             return false;
         }
     }
+    void graph ::update_cityname(string cityname ,string newname){
+    if(checkcity(cityname)==true){
+      if(checkcity(newname)==true){
+        cityname==newname;
+    }
+
+    }
+    }
     void graph ::addcity(City newcity) {
         bool check = checkcity(newcity.getCityname());
         if (check == true) {
@@ -99,6 +105,7 @@ City::City() {
         else {
             mymap[newcity.getCityname()] = list<pair<string, int>>();
             cout << "City added successfully.";
+            citycount++;
         }
     }
 
@@ -112,11 +119,23 @@ City::City() {
         }
     }
 
+bool graph::checkmap() {
+    if(citycount!=0) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+
 
 void graph:: clearmap(){
-    mymap.clear();
+    if(checkmap)
+        mymap.clear();
+
 }
-void graph::updadeedge(string city1,string city2,int km){
+void graph::update_edge(string city1,string city2,int km){
     bool edgeExists = checkedge(city1, city2);
     if (edgeExists) {
         delete_edge(city1, city2);

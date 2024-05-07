@@ -23,6 +23,8 @@ public:
 class graph{
 public:
     unordered_map<string, list<pair<string, int>>> mymap;
+    int citycount=0;
+    bool checkmap();
     bool checkedge(string city1, string city2);
     void addedge(string city1, string city2, int km);
     void delete_edge(string city1, string city2);
@@ -30,10 +32,10 @@ public:
     void addcity(City newcity);
     void deletecity(string cityname);
     void printadjcentlist();
+    void clearmap();
+    void update_cityname(string cityname,string newname);
+	void update_edge(string city1,string city2,int km);
     queue<string> DFS(string start_city);
-	void clearmap();
-	void updadeedge(string city1,string city2,int km)
-    queue<string> graph::DFS(string start_city);
     queue<string> BFS_algo( graph g,string startcity);
 };
  //GRAPH_H
