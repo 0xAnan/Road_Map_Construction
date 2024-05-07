@@ -31,3 +31,4 @@ add_executable(Road_Map_Construction "Main Classes/main.cpp"
 
 target_link_libraries(Road_Map_Construction PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Charts)
 #(change Road_Map_Construction to your project name)lw enta Qt6 khalek zy manta lw Qt5 ghyr ay Qt6 khaleha Qt5
+add_executable(NoGUI_Executable MainNoGUI.cpp)
