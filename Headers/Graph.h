@@ -29,7 +29,7 @@ public:
     void addedge(string city1, string city2, int km);
     void delete_edge(string city1, string city2);
     bool checkcity(string cityname);
-    void addcity(City newcity);
+    void addcity(string newcity);
     void deletecity(string cityname);
     void printadjcentlist();
     void clearmap();

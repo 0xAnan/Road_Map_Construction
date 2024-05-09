@@ -97,14 +97,16 @@ City::City() {
 
     }
     }
-    void graph ::addcity(City newcity) {
-        bool check = checkcity(newcity.getCityname());
+    void graph ::addcity(string newcity) {
+             City ncity;
+        ncity .setCityname(newcity);
+        bool check = checkcity(ncity.getCityname());
         if (check == true) {
-            cout << "City with this name already exists ";
+            cout << "City with this name already exists "<<endl;
         }
         else {
-            mymap[newcity.getCityname()] = list<pair<string, int>>();
-            cout << "City added successfully.";
+            mymap[newcity] = list<pair<string, int>>();
+            cout << "City added successfully."<<endl;
             citycount++;
         }
     }
