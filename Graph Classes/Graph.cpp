@@ -133,7 +133,7 @@ bool graph::checkmap() {
 
 
 void graph:: clearmap(){
-    if(checkmap)
+    if(checkmap())
         mymap.clear();
 
 }
