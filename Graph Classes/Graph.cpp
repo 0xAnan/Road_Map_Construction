@@ -102,7 +102,7 @@ City::City() {
         ncity .setCityname(newcity);
         bool check = checkcity(ncity.getCityname());
         if (check == true) {
-            cout << "City with this name already exists "<<endl;
+            cout << newcity <<"  with this name already exists "<<endl;
         }
         else {
             mymap[newcity] = list<pair<string, int>>();
@@ -114,7 +114,7 @@ City::City() {
     void graph:: deletecity(string cityname) {
         if (checkcity(cityname)) {
             mymap.erase(cityname);
-            cout << "City deleted succesfully ";
+            cout << cityname<<" deleted succesfully ";
         }
         else {
             cout << "City already doesnt exist ";
@@ -147,7 +147,7 @@ void graph::update_edge(string city1,string city2,int km){
 }
 
 int graph::number_of_cities(){
-return citycount();
+return citycount;
 }
 
 void graph:: printadjcentlist()
