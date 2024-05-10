@@ -25,13 +25,13 @@ public:
     unordered_map<string, list<pair<string, int>>> mymap;
     int citycount=0;
     bool checkmap();
-    bool checkedge(string city1, string city2);
+    bool checkedge(string city1, string city2);\
     void addedge(string city1, string city2, int km);
     void delete_edge(string city1, string city2);
     bool checkcity(string cityname);
     void addcity(string newcity);
     void deletecity(string cityname);
-    void number_of_cities();
+    int number_of_cities();
     void printadjcentlist();
     void clearmap();
     void update_cityname(string cityname,string newname);

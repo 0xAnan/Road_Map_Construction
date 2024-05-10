@@ -146,7 +146,7 @@ void graph::update_edge(string city1,string city2,int km){
     mymap[city2].push_back(make_pair(city1, km));
 }
 
-void graph::number_of_cities(){
+int graph::number_of_cities(){
 return citycount();
 }
 
