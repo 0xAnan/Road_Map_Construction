@@ -31,6 +31,7 @@ public:
     bool checkcity(string cityname);
     void addcity(string newcity);
     void deletecity(string cityname);
+    void number_of_cities();
     void printadjcentlist();
     void clearmap();
     void update_cityname(string cityname,string newname);
