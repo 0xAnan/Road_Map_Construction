@@ -42,12 +42,12 @@ City::City() {
         bool check3 = checkedge(city1, city2);
         if (check1 && check2 == true) {
             if (check3 == true) {
-                cout << "The Edge between " << city1 << " and " << city2 << "already exists";
+                cout << "The Edge between " << city1 << " and " << city2 << " already exists";
             }
             else {
                 mymap[city1].push_back(make_pair(city2, km));
                 mymap[city2].push_back(make_pair(city1, km));
-                cout << "Edge between " << city1 << " and " << city2 << "added succesfully";
+                cout << "Edge between " << city1 << " and " << city2 << " is added succesfully"<<endl;
             }
         }
         else {
@@ -74,10 +74,10 @@ City::City() {
                     ++it;
                 }
             }
-            cout << "Edge deleted successfully ";
+            cout << "Edge deleted successfully "<<endl;
         }
         else {
-            cout << "One or both cities doesnt exist ";
+            cout << "One or both cities doesnt exist "<<endl;
         }
     }
 
@@ -102,11 +102,11 @@ City::City() {
         ncity .setCityname(newcity);
         bool check = checkcity(ncity.getCityname());
         if (check == true) {
-            cout << newcity <<"  with this name already exists "<<endl;
+            cout << "City with this name already exists "<<endl;
         }
         else {
             mymap[newcity] = list<pair<string, int>>();
-            cout << "City added successfully."<<endl;
+            cout << newcity<<" is added successfully."<<endl;
             citycount++;
         }
     }
@@ -114,10 +114,10 @@ City::City() {
     void graph:: deletecity(string cityname) {
         if (checkcity(cityname)) {
             mymap.erase(cityname);
-            cout << cityname<<" deleted succesfully ";
+            cout << cityname<<" deleted succesfully "<<endl;
         }
         else {
-            cout << "City already doesnt exist ";
+            cout << "City already doesnt exist "<<endl;
         }
     }
 
@@ -138,8 +138,8 @@ void graph:: clearmap(){
 
 }
 void graph::update_edge(string city1,string city2,int km){
-    bool edgeExists = checkedge(city1, city2);
-    if (edgeExists) {
+
+    if (checkedge) {
         delete_edge(city1, city2);
     }
     mymap[city1].push_back(make_pair(city2, km));
