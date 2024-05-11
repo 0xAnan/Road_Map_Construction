@@ -137,9 +137,10 @@ void graph:: clearmap(){
         mymap.clear();
 
 }
+
 void graph::update_edge(string city1,string city2,int km){
 
-    if (checkedge) {
+    if (checkedge(city1,city2)) {
         delete_edge(city1, city2);
     }
     mymap[city1].push_back(make_pair(city2, km));
