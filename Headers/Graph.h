@@ -38,5 +38,6 @@ public:
 	void update_edge(string city1,string city2,int km);
     queue<string> DFS(string start_city);
     queue<string> BFS_algo( graph g,string startcity);
+    string Dijkstra_algo(graph g,string startcity);
 };
  //GRAPH_H

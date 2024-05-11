@@ -2,8 +2,8 @@
 #include <stack>
 #include <unordered_set>
 #include <queue>
-
-
+#include<sstream>
+#include<limits>
 City::City() {
         cityname = " ";
     }
@@ -18,11 +18,6 @@ City::City() {
         return cityname;
     }
   /*  void City ::update_cityname(string cityname,string newname) {}*/
-
-
-
-
-
 
     bool graph:: checkedge(string city1, string city2) {
         if (checkcity(city1)) {
@@ -214,5 +209,42 @@ queue <string> graph::DFS(string start_city)
             }
         }
         return store;
+
+    }
+    string graph :: Dijkstra_algo(graph g,string startcity){
+    priority_queue<pair<int,string>,vector<pair<int,string>>, greater<pair<int,string>>> pq;
+    unordered_map<string,int>distances;
+    for(const auto & city : g.mymap){
+    distances[city.first]=numeric_limits<int>::max();
+    }
+    distances[startcity]=0;
+    pq.push(make_pair(0,startcity));
+    unordered_set<string>visited;
+    while(! pq.empty()){
+    pair<int,string> current=pq.top();
+    pq.pop();
+    if(visited.count(current.second)>0)continue;
+    visited.insert(current.second);
+    for(const auto & neighbor : g.mymap[current.second]){
+    string neighbor_city=neighbor.first;
+    int distance_to_neighbor=neighbor.second;
+    int total_distance=distances[current.second] +  distance_to_neighbor;
+    if(distances[neighbor_city] > total_distance){
+    distances[neighbor_city]=total_distance;
+    pq.push(make_pair(total_distance,neighbor_city));
+    }
+    }
+    }
+    stringstream result;
+    for(const auto & city : g.mymap){
+    string city_name=city.first;
+    int distance=distances[city_name];
+    if(distance == numeric_limits<int>::max()){
+    result << city_name << " : unreachable" <<endl;
+    }else{
+     result << city_name << ": "<<distance<<" KM" <<endl;
+    }
+    }
+    return result.str();
     }
 
