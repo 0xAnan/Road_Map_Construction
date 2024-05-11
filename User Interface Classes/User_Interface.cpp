@@ -1,9 +1,9 @@
 #include"Headers/Graph.h"
 #include"Headers/User_Interface.h"
-
+#include <string>
 /*
-0 fail
-1 success
+1 fail
+0 success
 2 the city was existing
 */
 int User_Inrerface::AddCity(string nameOfCity , graph myGraph)
@@ -14,7 +14,7 @@ int User_Inrerface::AddCity(string nameOfCity , graph myGraph)
     {
 
         myGraph.addcity(nameOfCity);
-        return 1;
+        return 0;
     }
     else
     {
@@ -22,8 +22,8 @@ int User_Inrerface::AddCity(string nameOfCity , graph myGraph)
     }
 }
 /*
-0 fail
-1 success
+1 fail
+0 success
 2 city 1 or 2 was not existing
 3 the edge was existing
 */
@@ -41,14 +41,14 @@ int User_Inrerface::AddEdge(string nameOfCity1,string nameOfCity2,int distance, 
         {
 
             myGraph.addedge(nameOfCity1, nameOfCity2, distance);
-            return 1;
+            return 0;
         }
         else if (myGraph.checkedge(nameOfCity1, nameOfCity2))
         {
             return 3;
         }
         else
-            return 0;
+            return 1;
     }
     else if(!(myGraph.checkcity(nameOfCity1) && myGraph.checkcity(nameOfCity2)))
     {
@@ -56,12 +56,12 @@ int User_Inrerface::AddEdge(string nameOfCity1,string nameOfCity2,int distance, 
     }
     else
     {
-        return 0;
+        return 1;
     }
 }
 /*
-0 fail
-1 success
+1 fail
+0 success
 2 the city was not existing
 */
 int User_Inrerface::DeleteCity(string nameCity, graph myGraph)
@@ -70,7 +70,7 @@ int User_Inrerface::DeleteCity(string nameCity, graph myGraph)
     //   cin >> nameCity;
     if (myGraph.checkcity(nameCity)) {
         myGraph.deletecity(nameCity);
-        return 1;
+        return 0;
     }
     else if (!myGraph.checkcity(nameCity))
     {
@@ -78,12 +78,12 @@ int User_Inrerface::DeleteCity(string nameCity, graph myGraph)
     }
     else
     {
-        return 0;
+        return 1;
     }
 }
 /*
-0 fail
-1 success
+1 fail
+0 success
 2 city 1 or 2 was not existing
 3 the edge was not existing
 */
@@ -99,7 +99,7 @@ int User_Inrerface::DeleteEdge(string nameOfCity1, string nameOfCity2, graph myG
         if (myGraph.checkedge(nameOfCity1, nameOfCity2))
         {
             myGraph.delete_edge(nameOfCity1, nameOfCity2);
-            return 1;
+            return 0;
         }
         else if (!(myGraph.checkedge(nameOfCity1, nameOfCity2)))
         {
@@ -107,7 +107,7 @@ int User_Inrerface::DeleteEdge(string nameOfCity1, string nameOfCity2, graph myG
         }
         else
         {
-            return 0;
+            return 1;
         }
 
     }
@@ -117,12 +117,12 @@ int User_Inrerface::DeleteEdge(string nameOfCity1, string nameOfCity2, graph myG
     }
     else
     {
-        return 0;
+        return 1;
     }
 }
 /*
-0 fail
-1 success
+1 fail
+0 success
 2 city 1 or 2 was not existing
 3 the edge was not existing
 */
@@ -133,7 +133,7 @@ int User_Inrerface::EditEdge(string nameOfCity1, string nameOfCity2,int distance
         if (myGraph.checkedge(nameOfCity1, nameOfCity2))
         {
             myGraph.update_edge(nameOfCity1, nameOfCity2,  distance);
-            return 1;
+            return 0;
         }
         else if (!(myGraph.checkedge(nameOfCity1, nameOfCity2)))
         {
@@ -141,7 +141,7 @@ int User_Inrerface::EditEdge(string nameOfCity1, string nameOfCity2,int distance
         }
         else
         {
-            return 0;
+            return 1;
         }
 
     }
@@ -151,12 +151,12 @@ int User_Inrerface::EditEdge(string nameOfCity1, string nameOfCity2,int distance
     }
     else
     {
-        return 0;
+        return 1;
     }
 }
 /*
-0 fail
-1 success
+1 fail
+0 success
 2 the city was not existing
 3 the new name was taken
 */
@@ -167,7 +167,7 @@ int User_Inrerface::UpName(string nameOfCity1, string nameOfCity2, graph myGraph
         if (!(myGraph.checkcity(nameOfCity2)))
         {
             myGraph.update_cityname(nameOfCity1,nameOfCity2);
-            return 1;
+            return 0;
         }
         else if (myGraph.checkcity(nameOfCity2))
         {
@@ -175,7 +175,7 @@ int User_Inrerface::UpName(string nameOfCity1, string nameOfCity2, graph myGraph
         }
         else
         {
-            return 0;
+            return 1;
         }
     }
     else if (!(myGraph.checkcity(nameOfCity1)))
@@ -184,22 +184,22 @@ int User_Inrerface::UpName(string nameOfCity1, string nameOfCity2, graph myGraph
     }
     else
     {
-        return 0;
+        return 1;
     }
 }
 /*
-0 fail
-1 success
+1 fail
+0 success
 */
 int User_Inrerface::ClearMap(graph myGraph)
 {
     if (myGraph.checkmap())
     {
         myGraph.clearmap();
-        return 1;
+        return 0;
     }
     else
-        return 0;
+        return 1;
 }
 /*
 0 fail
@@ -210,8 +210,15 @@ int User_Inrerface::TraverDfs(string nameofcity, graph myGraph)
 {
     if (myGraph.checkcity(nameofcity))
     {
-        myGraph.DFS(nameofcity);
-        return 1;
+       queue q= myGraph.DFS(nameofcity);
+       string s=" ";
+       while(q.empty())
+           {
+           s+=q.front();
+           s+=" ";
+           q.pop();
+           }
+        return 0;
     }
     else if (!myGraph.checkcity(nameofcity))
     {
@@ -219,12 +226,12 @@ int User_Inrerface::TraverDfs(string nameofcity, graph myGraph)
     }
     else
     {
-        return 0;
+        return 1;
     }
 }
 /*
-0 fail
-1 success
+1 fail
+0 success
 2 the city was existing
 */
 int User_Inrerface::TraverBfs(graph traverGraph,string nameofcity, graph myGraph)
