@@ -216,7 +216,7 @@ int User_Inrerface::TraverDfs(string nameofcity, graph myGraph)
            {
            s+=q.front();
            s+=" ";
-           q.pop();
+           q.pop(
            }
         return 0;
     }
