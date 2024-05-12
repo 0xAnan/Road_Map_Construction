@@ -14,6 +14,7 @@ int main()
     mumap.AddCity("CAIro",g);
     mumap.AddEdge("cairo","alex",180,g);
     mumap.AddEdge("cairo","zefta",320,g);
+    mumap.AddEdge("cairo","zefta",320,g);
     mumap.DeleteCity("alex",g);
     mumap.DeleteEdge("cairo","zefta",g);
 

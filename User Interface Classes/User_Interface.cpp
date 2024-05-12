@@ -47,6 +47,7 @@ int User_Inrerface::AddEdge(string nameOfCity1,string nameOfCity2,int distance, 
         }
         else if (myGraph.checkedge(nameOfCity1, nameOfCity2))
         {
+            cout<<"Edge already exists "<<endl;
             return 3;
         }
         else

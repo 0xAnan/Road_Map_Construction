@@ -3,7 +3,13 @@
 #include<list>
 #include<utility>
 #include<unordered_map>
-#include<queue>
+
+#include <algorithm>
+#include <stack>
+#include <unordered_set>
+#include <queue>
+#include<sstream>
+#include<limits>
 using namespace std;
 class City
 {
@@ -11,8 +17,6 @@ public:
     string cityname;
     City();
     City(string cname);
-    string getCityname();
-    string setCityname(string cname);
     void update_cityname(string cname);
 };
 
