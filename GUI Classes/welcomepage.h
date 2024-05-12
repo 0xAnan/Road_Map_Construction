@@ -38,19 +38,17 @@ public:
         QPushButton *startButton = new QPushButton("Start App", this);
         startButton->setFixedWidth(200);
         startButton->setStyleSheet(
-            "QPushButton {"
-            "background-color: #4CAF50;"
-            "border: none;"
-            "color: white;"
-            "padding: 15px 32px;"
-            "text-align: center;"
-            "text-decoration: none;"
-            "display: inline-block;"
-            "font-size: 16px;"
-            "margin: 4px 2px;"
-            "cursor: pointer;"
-            "border-radius: 12px;}"
-            "QPushButton:hover {background-color: #45a049;}"
+        "QPushButton {"
+                  "background-color: #4CAF50;"
+                  "border: none;"
+                  "color: white;"
+                  "padding: 15px 32px;"
+                  "text-align: center;"
+                  "text-decoration: none;"
+                  "font-size: 16px;"
+                  "margin: 4px 2px;"
+                  "border-radius: 12px;}"
+                  "QPushButton:hover {background-color: #45a049;}"
         );
         // Connect the button's clicked signal to the dialog's accept slot
         connect(startButton, &QPushButton::clicked, this, &QDialog::accept);
@@ -60,19 +58,17 @@ public:
         QPushButton *exitButton = new QPushButton("Exit", this);
         exitButton->setFixedWidth(200);
         exitButton->setStyleSheet(
-            "QPushButton {"
-            "background-color: #4CAF50;"
-            "border: none;"
-            "color: white;"
-            "padding: 15px 32px;"
-            "text-align: center;"
-            "text-decoration: none;"
-            "display: inline-block;"
-            "font-size: 16px;"
-            "margin: 4px 2px;"
-            "cursor: pointer;"
-            "border-radius: 12px;}"
-            "QPushButton:hover {background-color: #45a049;}"
+        "QPushButton {"
+                  "background-color: #4CAF50;"
+                  "border: none;"
+                  "color: white;"
+                  "padding: 15px 32px;"
+                  "text-align: center;"
+                  "text-decoration: none;"
+                  "font-size: 16px;"
+                  "margin: 4px 2px;"
+                  "border-radius: 12px;}"
+                  "QPushButton:hover {background-color: #45a049;}"
         );
         // Connect the button's clicked signal to the dialog's reject slot
         connect(exitButton, &QPushButton::clicked, this, &QDialog::reject);
