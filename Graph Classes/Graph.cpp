@@ -187,17 +187,17 @@ queue <string> graph::DFS(string start_city)
         return queue;
     }
 
-    queue <string> graph :: BFS_algo( graph g,string startcity)
+     string graph :: BFS_algo( graph g,string startcity)
     {
-        queue<string>store;
         unordered_map<string,bool>visted;
         queue<string>q;
+        string result;
         visted[startcity]=true;
         q.push(startcity);
         while(! q.empty()){
             string currentcity=q.front();
             q.pop();
-            store.push(currentcity);
+            result += currentcity+" - ";
             for(auto neighbor : g.mymap[currentcity])
             {
                 string neighborcity=neighbor.first;
@@ -208,8 +208,7 @@ queue <string> graph::DFS(string start_city)
                 }
             }
         }
-        return store;
-
+    return result;
     }
     string graph :: Dijkstra_algo(graph g,string startcity){
     priority_queue<pair<int,string>,vector<pair<int,string>>, greater<pair<int,string>>> pq;
