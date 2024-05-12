@@ -207,16 +207,22 @@ int User_Inrerface::ClearMap(graph& myGraph)
 2 the city was existing
 */
  string User_Inrerface::TraverDfs(string nameofcity, graph& myGraph, queue<string> q, string s){
-    if (true) // This condition is always true; consider removing it
+    if (myGraph.checkcity(nameofcity)) // This condition is always true; consider removing it
     {
-        myGraph.DFS(nameofcity);
-        s = " ";
+     q=   myGraph.DFS(nameofcity);
+        s = "";
+        while(!q.empty())
+            {
+            s+=q.front();
+            q.pop();
+            s+=" ";
+            }
 
         return s;
     }
-}
 
-   /* else if (!myGraph.checkcity(nameofcity))
+
+    else if (!myGraph.checkcity(nameofcity))
     {
         return "2";
     }
@@ -225,7 +231,7 @@ int User_Inrerface::ClearMap(graph& myGraph)
         return "1";
     }
 }
-    */
+
 /*
 1 fail
 0 success
@@ -233,20 +239,21 @@ int User_Inrerface::ClearMap(graph& myGraph)
 */
 string User_Inrerface::TraverBfs(graph traverGraph,string nameofcity, graph& myGraph,queue<string> q, string s)
 {
-    if (true)
+ if (myGraph.checkcity(nameofcity)) // This condition is always true; consider removing it
     {
+     q=   myGraph.BFS_algo(traverGraph,nameofcity);
+        s = "";
+        while(!q.empty())
+            {
+            s+=q.front();
+            q.pop();
+            s+=" ";
+            }
 
-
-         q=myGraph.BFS_algo(traverGraph,nameofcity);
-       s=" ";
-       while(q.empty())
-           {
-           s+=q.front();
-           s+=" ";
-           q.pop();
-           }
         return s;
     }
+
+
     else if (!myGraph.checkcity(nameofcity))
     {
         return "2";
