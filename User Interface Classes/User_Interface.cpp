@@ -6,7 +6,7 @@
 0 success
 2 the city was existing
 */
-int User_Inrerface::AddCity(string nameOfCity , graph myGraph)
+int User_Inrerface::AddCity(string nameOfCity , graph& myGraph)
 {
     // cout << "Enter the name of the city: ";
     //  cin >> nameOfCity;
@@ -27,7 +27,7 @@ int User_Inrerface::AddCity(string nameOfCity , graph myGraph)
 2 city 1 or 2 was not existing
 3 the edge was existing
 */
-int User_Inrerface::AddEdge(string nameOfCity1,string nameOfCity2,int distance, graph myGraph)
+int User_Inrerface::AddEdge(string nameOfCity1,string nameOfCity2,int distance, graph& myGraph)
 {
 
     //cout << "Enter the name of city 1: ";
@@ -64,7 +64,7 @@ int User_Inrerface::AddEdge(string nameOfCity1,string nameOfCity2,int distance, 
 0 success
 2 the city was not existing
 */
-int User_Inrerface::DeleteCity(string nameCity, graph myGraph)
+int User_Inrerface::DeleteCity(string nameCity, graph& myGraph)
 {
     // cout << "enter the name of city: ";
     //   cin >> nameCity;
@@ -87,7 +87,7 @@ int User_Inrerface::DeleteCity(string nameCity, graph myGraph)
 2 city 1 or 2 was not existing
 3 the edge was not existing
 */
-int User_Inrerface::DeleteEdge(string nameOfCity1, string nameOfCity2, graph myGraph)
+int User_Inrerface::DeleteEdge(string nameOfCity1, string nameOfCity2, graph& myGraph)
 {
     //cout << "to delete edge you must enter two city /n";
     //cout << "enter  the city 1:";
@@ -126,7 +126,7 @@ int User_Inrerface::DeleteEdge(string nameOfCity1, string nameOfCity2, graph myG
 2 city 1 or 2 was not existing
 3 the edge was not existing
 */
-int User_Inrerface::EditEdge(string nameOfCity1, string nameOfCity2,int distance, graph myGraph)
+int User_Inrerface::EditEdge(string nameOfCity1, string nameOfCity2,int distance, graph& myGraph)
 {
     if (myGraph.checkcity(nameOfCity1) && myGraph.checkcity(nameOfCity2))
     {
@@ -160,7 +160,7 @@ int User_Inrerface::EditEdge(string nameOfCity1, string nameOfCity2,int distance
 2 the city was not existing
 3 the new name was taken
 */
-int User_Inrerface::UpName(string nameOfCity1, string nameOfCity2, graph myGraph)
+int User_Inrerface::UpName(string nameOfCity1, string nameOfCity2, graph& myGraph)
 {
     if (myGraph.checkcity(nameOfCity1))
     {
@@ -191,7 +191,7 @@ int User_Inrerface::UpName(string nameOfCity1, string nameOfCity2, graph myGraph
 1 fail
 0 success
 */
-int User_Inrerface::ClearMap(graph myGraph)
+int User_Inrerface::ClearMap(graph& myGraph)
 {
     if (myGraph.checkmap())
     {
@@ -206,49 +206,54 @@ int User_Inrerface::ClearMap(graph myGraph)
 1 success
 2 the city was existing
 */
-int User_Inrerface::TraverDfs(string nameofcity, graph myGraph)
-{
-    if (myGraph.checkcity(nameofcity))
+ string User_Inrerface::TraverDfs(string nameofcity, graph& myGraph, queue<string> q, string s){
+    if (true) // This condition is always true; consider removing it
     {
-       queue q= myGraph.DFS(nameofcity);
-       string s=" ";
+        myGraph.DFS(nameofcity);
+        s = " ";
+
+        return s;
+    }
+}
+
+   /* else if (!myGraph.checkcity(nameofcity))
+    {
+        return "2";
+    }
+    else
+    {
+        return "1";
+    }
+}
+    */
+/*
+1 fail
+0 success
+2 the city was existing
+*/
+string User_Inrerface::TraverBfs(graph traverGraph,string nameofcity, graph& myGraph,queue<string> q, string s)
+{
+    if (true)
+    {
+
+
+         q=myGraph.BFS_algo(traverGraph,nameofcity);
+       s=" ";
        while(q.empty())
            {
            s+=q.front();
            s+=" ";
            q.pop();
            }
-        return 0;
+        return s;
     }
     else if (!myGraph.checkcity(nameofcity))
     {
-        return 2;
+        return "2";
     }
     else
     {
-        return 1;
-    }
-}
-/*
-1 fail
-0 success
-2 the city was existing
-*/
-int User_Inrerface::TraverBfs(graph traverGraph,string nameofcity, graph myGraph)
-{
-    if (myGraph.checkcity(nameofcity))
-    {
-
-        myGraph.BFS_algo(traverGraph,nameofcity);
-        return 1;
-    }
-    else if (!myGraph.checkcity(nameofcity))
-    {
-        return 2;
-    }
-    else
-    {
-        return 0;
+        return "1";
     }
 }
 
