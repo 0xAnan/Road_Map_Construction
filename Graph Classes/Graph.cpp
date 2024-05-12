@@ -40,15 +40,26 @@ void graph ::update_cityname(string cityname ,string newname){
     }
     }
 
-void graph:: deletecity(string cityname) {
-        if (checkcity(cityname)) {
-            mymap.erase(cityname);
-            cout << cityname<<" deleted succesfully "<<endl;
+void graph::deletecity(string cityname) {
+    if (checkcity(cityname)) {
+        // Delete edges associated with cityname
+        for (auto& pair : mymap) {
+            string adjacentCity = pair.first;
+            if (adjacentCity != cityname) {
+                // If there is an edge from adjacentCity to cityname, delete it
+                if (checkedge(adjacentCity, cityname)) {
+                    delete_edge(adjacentCity, cityname);
+                }
+            }
         }
-        else {
-            cout << "City already doesnt exist "<<endl;
-        }
+
+        // Delete cityname from the map
+        mymap.erase(cityname);
+        cout << cityname << " deleted successfully." << endl;
+    } else {
+        cout << "City does not exist." << endl;
     }
+}
 
 //----------------------------------------------------EDGE----------------------------------------------------//
 void graph:: addedge(string city1, string city2, int km)
