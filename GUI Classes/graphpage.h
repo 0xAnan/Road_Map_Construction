@@ -535,9 +535,16 @@ public slots:
                 return_value = UI.DeleteCity(sname,Graph);
                 //Success
                 if (return_value == 0) {
+                    QPoint removedPoint = graph->points[i];
                     graph->pointNames.erase(graph->points[i]);
                     graph->points.remove(i);
                     graph->relativePoints.remove(i);
+                    // Remove the lines connected to the removed point
+                    for (int j = graph->lines.size() - 1; j >= 0; --j) {
+                        if (graph->lines[j].first.first == removedPoint || graph->lines[j].first.second == removedPoint) {
+                            graph->lines.remove(j);
+                        }
+                    }
                     QMessageBox::information(this, tr("Success"), tr("City Deleted Successfully."));
                 }
                 //Fail
