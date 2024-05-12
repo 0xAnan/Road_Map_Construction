@@ -1,4 +1,6 @@
 #include "Headers/Graph.h"
+
+#include <algorithm>
 #include <stack>
 #include <unordered_set>
 #include <queue>
@@ -76,14 +78,17 @@ City::City() {
         }
     }
 
-    bool graph:: checkcity(string cityname) {
-        if (mymap.find(cityname) != mymap.end()) {
+bool graph::checkcity(string cityname) {
+    transform(cityname.begin(), cityname.end(), cityname.begin(), ::tolower);
+    for (const auto& pair : mymap) {
+        string key = pair.first;
+        transform(key.begin(), key.end(), key.begin(), ::tolower);
+        if (key == cityname) {
             return true;
         }
-        else {
-            return false;
-        }
     }
+    return false;
+}
     void graph ::update_cityname(string cityname ,string newname){
     if(checkcity(cityname)==true){
       if(checkcity(newname)==true){
@@ -93,16 +98,17 @@ City::City() {
     }
     }
     void graph ::addcity(string newcity) {
-             City ncity;
-        ncity .setCityname(newcity);
-        bool check = checkcity(ncity.getCityname());
-        if (check == true) {
-            cout << "City with this name already exists "<<endl;
-        }
-        else {
-            mymap[newcity] = list<pair<string, int>>();
+
+
+
+        if ( !checkcity(newcity)) {
+            mymap.emplace(newcity,list<pair<string,int>>());
             cout << newcity<<" is added successfully."<<endl;
             citycount++;
+        }
+        else if(checkcity(newcity)){
+
+            cout<<"City is already added";
         }
     }
 
@@ -130,6 +136,7 @@ bool graph::checkmap() {
 void graph:: clearmap(){
     if(checkmap())
         mymap.clear();
+    citycount=0;
 
 }
 

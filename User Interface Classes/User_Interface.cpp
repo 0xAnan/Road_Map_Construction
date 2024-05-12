@@ -16,8 +16,10 @@ int User_Inrerface::AddCity(string nameOfCity , graph& myGraph)
         myGraph.addcity(nameOfCity);
         return 0;
     }
+
     else
     {
+    cout<<"City was already added "<<endl;
         return 2;
     }
 }
