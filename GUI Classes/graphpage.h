@@ -10,10 +10,18 @@
 #include <QDialog>
 #include <QLineEdit>
 #include <QContextMenuEvent>
+#include <QCursor>
+#include <QMessageBox>
 
 #include <map>
 #include <cmath>
 #include <iostream>
+#include "Headers/Graph.h"
+#include "Headers/User_Interface.h"
+
+inline User_Inrerface UI;
+inline int return_value;
+inline graph Graph;
 
 // Comparator for QPoint objects
 struct PointComparator {
@@ -33,11 +41,11 @@ public:
     GraphGUI(QWidget *parent = nullptr) : QWidget(parent) {
         setMinimumSize(300, 300);
     }
-
     QVector<QPoint> points;  // Stores the points in the graph
     std::map<QPoint, QString, PointComparator> pointNames;  // Stores the names of the points
     QList<QPair<QPair<QPoint, QPoint>, double>> lines;  // Stores the lines in the graph
     QVector<QPair<QPointF, QString>> relativePoints;  // Stores the points relative to the size of the widget
+
 
 protected:
     // Event handler for mouse press events
@@ -57,6 +65,7 @@ protected:
     {
         // If a point is being dragged, update its position
         if (draggedPoint) {
+            QApplication::setOverrideCursor(Qt::CrossCursor);
             QPoint oldPos = *draggedPoint;
             QPoint newPos = event->pos();
 
@@ -93,8 +102,11 @@ protected:
                 }
             }
 
-            update();
         }
+        else {
+            QApplication::setOverrideCursor(Qt::ArrowCursor);
+        }
+        update();
     }
 
     // Event handler for mouse release events
@@ -121,7 +133,18 @@ protected:
                     // Update the corresponding point in relativePoints
                     for (auto &pair : relativePoints) {
                         if (pair.first == QPointF((qreal)point.x() / width(), (qreal)point.y() / height())) {
-                            pair.second = text;
+                            return_value =UI.UpName(pair.second.toStdString(),text.toStdString(),Graph);
+                            if (return_value == 0) {
+                                pair.second = text;
+                                QMessageBox::information(this, tr("Success"), tr("City Name Changed Successfully."));
+                            }
+                            else if (return_value == 1)
+                                QMessageBox::warning(this, tr("Error"), tr("Changing The City Name Failed."));
+                            else if (return_value == 2)
+                                QMessageBox::warning(this, tr("Error"), tr("The City Doesn't Exist."));
+                            else if (return_value == 3)
+                                QMessageBox::warning(this, tr("Error"), tr("The New Name Already Exists."));
+                            
                             break;
                         }
                     }
@@ -176,9 +199,7 @@ protected:
     {
         // Add random points if none exist
         if (points.isEmpty()) {
-            for (int i = 0; i < 5; ++i) {
-                addRandomPoint();
-            }
+            addGraphPoints();
         }
     }
 
@@ -199,8 +220,23 @@ private:
         qreal x = QRandomGenerator::global()->generateDouble() * (1.0 - 2*margin) + margin;
         qreal y = QRandomGenerator::global()->generateDouble() * (1.0 - 2*margin) + margin;
         QPointF point(x, y);
-        relativePoints.push_back(qMakePair(point, "Point " + QString::number(relativePoints.size() + 1)));
+        relativePoints.push_back(qMakePair(point, "Test " + QString::number(relativePoints.size() + 1)));
         updatePoints();
+    }
+    void addGraphPoints() {
+        Graph.addcity("alex");
+        Graph.addcity("cairo");
+        Graph.addcity("zefta");
+        for (auto city : Graph.mymap) {
+            qreal margin = 0.1;
+            qreal x = QRandomGenerator::global()->generateDouble() * (1.0 - 2*margin) + margin;
+            qreal y = QRandomGenerator::global()->generateDouble() * (1.0 - 2*margin) + margin;
+            QPointF point(x, y);
+            string name = city.first;
+            QString qStr = QString::fromStdString(name);
+            relativePoints.push_back(qMakePair(point, qStr));
+            updatePoints();
+        }
     }
 
     // Update the positions of the points
@@ -270,18 +306,17 @@ GraphWidget(QWidget *parent = nullptr) : QWidget(parent)
     QVBoxLayout *sidebarLayout = new QVBoxLayout;
 
     QString buttonStyle = "QPushButton {"
-                          "background-color: #4CAF50;"
-                          "border: none;"
-                          "color: white;"
-                          "padding: 15px 32px;"
-                          "text-align: center;"
-                          "text-decoration: none;"
-                          "display: inline-block;"
-                          "font-size: 16px;"
-                          "margin: 4px 2px;"
-                          "cursor: pointer;"
-                          "border-radius: 12px;}"
-                          "QPushButton:hover {background-color: #45a049;}";
+                      "background-color: #4CAF50;"
+                      "border: none;"
+                      "color: white;"
+                      "padding: 15px 32px;"
+                      "text-align: center;"
+                      "text-decoration: none;"
+                      "font-size: 16px;"
+                      "margin: 4px 2px;"
+                      "border-radius: 12px;}"
+                      "QPushButton:hover {background-color: #45a049;}";
+
 
     QPushButton *addButton = new QPushButton(tr("Add Point"), this);
     addButton->setStyleSheet(buttonStyle);
@@ -313,6 +348,12 @@ GraphWidget(QWidget *parent = nullptr) : QWidget(parent)
     connect(editLineButton, &QPushButton::clicked, this, &GraphWidget::editLine);
     sidebarLayout->addWidget(editLineButton);
 
+    QPushButton *displayAlgorithmsButton = new QPushButton(tr("Display Algorithms"), this);
+    displayAlgorithmsButton->setStyleSheet(buttonStyle);
+    connect(displayAlgorithmsButton, &QPushButton::clicked, this, &GraphWidget::displayAlgorithms);
+    sidebarLayout->addWidget(displayAlgorithmsButton);
+
+
     QPushButton *exitButton = new QPushButton(tr("Exit to Main Menu"), this);
     exitButton->setStyleSheet(buttonStyle);
     connect(exitButton, &QPushButton::clicked, this, &GraphWidget::exitToMainMenu);
@@ -330,6 +371,7 @@ GraphWidget(QWidget *parent = nullptr) : QWidget(parent)
     mainLayout->addWidget(graph, 1);
 
     setLayout(mainLayout);
+
 }
 
     signals:
@@ -341,65 +383,101 @@ public slots:
         QString name = QInputDialog::getText(this, tr("Point Name"),
                                              tr("Enter name for point:"), QLineEdit::Normal,
                                              QString(), &ok);
+        string sname = name.toStdString();
         if (ok && !name.isEmpty())
         {
+            //Generating A Random Point
             int x = QRandomGenerator::global()->bounded(graph->width());
             int y = QRandomGenerator::global()->bounded(graph->height());
             QPoint newPoint(x, y);
+            //Checking The Point In The Backend
+            return_value = UI.AddCity(sname,Graph);
+            //Success
+            if (return_value == 0) {
             graph->points.push_back(newPoint);
             graph->pointNames[newPoint] = name;
             QPointF relativePoint((qreal)x / graph->width(), (qreal)y / graph->height());
             graph->relativePoints.push_back(qMakePair(relativePoint, name));
             graph->update();
-        }
-    //validateUser(name,password);
-    }
-
-    void removePoint()
-    {
-        if (!graph->points.isEmpty())
-        {
-            QPoint lastPoint = graph->points.last();
-            graph->points.pop_back();
-            graph->pointNames.erase(lastPoint);
-            graph->relativePoints.pop_back();
-            graph->update();
+                QMessageBox::information(this, tr("Success"), tr("City Added Successfully."));
+            }
+            //Fail
+            else if (return_value == 1) {
+                QMessageBox::warning(this, tr("Error"), tr("Adding The City Failed."));
+            }
+            //City Already Exists
+            else if (return_value == 2) {
+                QMessageBox::warning(this, tr("Error"), tr("City Already Exists."));
+            }
         }
     }
 
     void clearPoints()
     {
-        graph->points.clear();
-        graph->pointNames.clear();
-        graph->lines.clear();
-        graph->relativePoints.clear();
-        graph->update();
+        //Checking The Graph In The Backend
+        return_value = UI.ClearMap(Graph);
+        //Success
+        if (return_value == 0) {
+            graph->points.clear();
+            graph->pointNames.clear();
+            graph->lines.clear();
+            graph->relativePoints.clear();
+            QMessageBox::information(this, tr("Success"), tr("Graph Cleared Successfuly."));
+            cout<< Graph.citycount<<endl;
+        }
+        //Fail
+        else if (return_value == 1) {
+            QMessageBox::warning(this, tr("Error"), tr("Graph Is Empty."));
+        }
     }
 
     void connectPoints()
     {
+        //Getting List Of All Names In The Graph
         QStringList pointNamesList;
         for (const auto &pair : graph->pointNames) {
             pointNamesList << pair.second;
         }
+
+        //Getting Input From User
         ConnectPointsDialog dialog(pointNamesList, this);
         if (dialog.exec() == QDialog::Accepted) {
             QString point1Name = dialog.point1Name();
             QString point2Name = dialog.point2Name();
             double value = dialog.value();
-
+            //Searching For The Two Points Selected
             QPoint point1, point2;
             for (const auto &pair : graph->pointNames) {
                 if (pair.second == point1Name) point1 = pair.first;
                 if (pair.second == point2Name) point2 = pair.first;
             }
-
+            //Checking The Two Points In The Backend
+            return_value = UI.AddEdge(point1Name.toStdString(),point2Name.toStdString(),value,Graph);
+            //Success
+            if (return_value == 0 ) {
             graph->lines.push_back(qMakePair(qMakePair(point1, point2), value));
             graph->update();
+            QMessageBox::information(this, tr("Success"), tr("Connection Added Successfully."));
+            }
+            //Fail
+            else if (return_value == 1){
+                QMessageBox::warning(this, tr("Error"), tr("Adding The Connection Failed."));
+            }
+            //One Of The Cities Does Not Exist
+            else if (return_value == 2){
+                QMessageBox::warning(this, tr("Error"), tr("One Of The Cities Doesn't Exist."));
+            }
+            //Connection Already Exists
+            else if (return_value == 3){
+                QMessageBox::warning(this, tr("Error"), tr("Connection Already Exists."));
+            }
+            //TODO If value == 0
         }
     }
+
     void editLine()
 {
+    //Getting The List Of Connected City Names
     QStringList lineNamesList;
     for (const auto &line : graph->lines) {
         lineNamesList << (graph->pointNames[line.first.first] + "-" + graph->pointNames[line.first.second]);
@@ -411,12 +489,23 @@ public slots:
     if (ok && !name.isEmpty())
     {
         for (auto &line : graph->lines) {
+            //Searching For The Chosen Connection
             if ((graph->pointNames[line.first.first] + "-" + graph->pointNames[line.first.second]) == name) {
                 bool ok;
                 double value = QInputDialog::getDouble(this, tr("Edit Line Value"),
                                                        tr("New value:"), line.second, -10000, 10000, 2, &ok);
                 if (ok) {
-                    line.second = value;
+                    //Checking For The Connection In The Backend
+                    return_value = UI.EditEdge(graph->pointNames[line.first.first].toStdString(),graph->pointNames[line.first.second].toStdString(),value,Graph);
+                    //Success
+                    if (return_value == 0) {
+                        line.second = value;
+                        QMessageBox::information(this, tr("Success"), tr("Connection Edited Successfully."));
+                    }
+                    //Fail
+                    else {
+                        QMessageBox::warning(this, tr("Error"), tr("Editing The Connection Failed."));
+                    }
                     graph->update();
                 }
                 break;
@@ -424,8 +513,10 @@ public slots:
         }
     }
 }
+
     void removeSpecificPoint()
 {
+    //Getting List Of Cities
     QStringList pointNamesList;
     for (const auto &pair : graph->pointNames) {
         pointNamesList << pair.second;
@@ -434,21 +525,35 @@ public slots:
     bool ok;
     QString name = QInputDialog::getItem(this, tr("Remove Point"),
                                          tr("Select point to remove:"), pointNamesList, 0, false, &ok);
+    string sname = name.toStdString();
     if (ok && !name.isEmpty())
     {
+        //Searching For The Point
         for (int i = 0; i < graph->points.size(); ++i) {
             if (graph->pointNames[graph->points[i]] == name) {
-                graph->pointNames.erase(graph->points[i]);
-                graph->points.remove(i);
-                graph->relativePoints.remove(i);
+                //Checking The Point In The Backend
+                return_value = UI.DeleteCity(sname,Graph);
+                //Success
+                if (return_value == 0) {
+                    graph->pointNames.erase(graph->points[i]);
+                    graph->points.remove(i);
+                    graph->relativePoints.remove(i);
+                    QMessageBox::information(this, tr("Success"), tr("City Deleted Successfully."));
+                }
+                //Fail
+                else {
+                    QMessageBox::warning(this, tr("Error"), tr("Deleting The City Failed."));
+                }
                 graph->update();
                 break;
             }
         }
     }
 }
+
     void removeSpecificLine()
 {
+    //Getting List Of Lines
     QStringList lineNamesList;
     for (const auto &line : graph->lines) {
         lineNamesList << (graph->pointNames[line.first.first] + "-" + graph->pointNames[line.first.second]);
@@ -460,10 +565,50 @@ public slots:
     if (ok && !name.isEmpty())
     {
         for (int i = 0; i < graph->lines.size(); ++i) {
+            //Searching For The Connection
             if ((graph->pointNames[graph->lines[i].first.first] + "-" + graph->pointNames[graph->lines[i].first.second]) == name) {
-                graph->lines.remove(i);
+                //Checking The Connection In The Backend
+                return_value = UI.DeleteEdge(graph->pointNames[graph->lines[i].first.first].toStdString(),graph->pointNames[graph->lines[i].first.second].toStdString(),Graph);
+                //Success
+                if (return_value == 0) {
+                    graph->lines.remove(i);
+                    QMessageBox::information(this, tr("Success"), tr("Connection Deleted Successfully."));
+                }
+                //Fail
+                else {
+                    QMessageBox::warning(this, tr("Error"), tr("Deleting The Connection Failed."));
+                }
                 graph->update();
                 break;
+            }
+        }
+    }
+}
+
+    void displayAlgorithms() {
+    QStringList algorithmNamesList;
+    // Add your algorithm names here
+    algorithmNamesList << "BFS" << "DFS" << "Dijkestra" << "Prim's Algorithm";
+
+    QStringList pointNamesList;
+    for (const auto &pair : graph->pointNames) {
+        pointNamesList << pair.second;
+    }
+
+    bool ok;
+    QString algorithmName = QInputDialog::getItem(this, tr("Select Algorithm"),
+                                                  tr("Select an algorithm:"), algorithmNamesList, 0, false, &ok);
+    if (ok && !algorithmName.isEmpty()) {
+        QString pointName = QInputDialog::getItem(this, tr("Select Starting Point"),
+                                                  tr("Select a starting point:"), pointNamesList, 0, false, &ok);
+        if (ok && !pointName.isEmpty()) {
+            // Call your algorithm function here with the selected algorithm name and starting point
+            if (algorithmName=="Algorithm 1") {
+                cout<<"1\n";
+            }else if (algorithmName=="Algorithm 2") {
+                cout<<"2\n";
+            }else if (algorithmName=="Algorithm 3") {
+                cout<<"3\n";
             }
         }
     }
@@ -473,4 +618,5 @@ public slots:
 
 private:
     GraphGUI *graph;
+
 };
