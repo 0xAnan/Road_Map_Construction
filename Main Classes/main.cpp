@@ -22,6 +22,6 @@ int main(int argc, char *argv[])
     if (welcomePage.exec() == QDialog::Accepted) {
         widget->show();
     }
-
+    //widget->getGraph().Graph.printadjcentlist();
     return app.exec();
 }

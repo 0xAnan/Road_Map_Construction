@@ -5,30 +5,22 @@ int main()
 {
 
     cout<<"Test"<<endl;
-    /*graph test;
-    test.addcity("alex");
-    test.addcity("cairo");
-    test.addcity("zefta");
-    test.addedge("cairo","alex",180);
-    test.addedge("cairo","zefta",150);
-    test.deletecity("alex");
-    test.delete_edge("cairo","zefta");
-*/
-    UI mumap;
-    mumap.disp_AddCity("alex");
-    mumap.disp_AddCity("cairo");
-    mumap.disp_AddCity("zefta");
-    mumap.AddEdge("cairo","alex",180);
-    mumap.AddEdge("cairo","zefta",320);
-    mumap.DeleteCity("alex");
-    mumap.DeleteEdge("cairo","zefta");
+  graph g;
+
+    User_Inrerface mumap;
+    mumap.AddCity("alex",g);
+    mumap.AddCity("cairo",g);
+    mumap.AddCity("zefta",g);
+    mumap.AddCity("CAIro",g);
+    mumap.AddEdge("cairo","alex",180,g);
+    mumap.AddEdge("cairo","zefta",320,g);
+    mumap.AddEdge("cairo","zefta",320,g);
+    mumap.DeleteCity("alex",g);
+    mumap.DeleteEdge("cairo","zefta",g);
+
+//mumap.TraverDfs("cairo",g);
 
 
-
-
-
-
-    
 
     return 0;
 }
