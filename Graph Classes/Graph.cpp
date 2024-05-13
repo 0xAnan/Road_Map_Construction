@@ -222,7 +222,7 @@ string graph :: Dijkstra_algo(graph g,string startcity){
     return result.str();
     }
 
-string findMinKey(const unordered_map<string, int>& key, const unordered_map<string, bool>& visited) {
+string graph::findMinKey(const unordered_map<string, int>& key, const unordered_map<string, bool>& visited) {
     int min = INT_MAX;
     string minKey;
 
@@ -240,7 +240,7 @@ string findMinKey(const unordered_map<string, int>& key, const unordered_map<str
     return minKey;
 }
 
-pair<string, list<string>> Prims(unordered_map<string, list<pair<string, int>>> mymap) {
+pair<string, list<string>> graph::Prims(unordered_map<string, list<pair<string, int>>> mymap) {
     unordered_map<string, bool> visited;
     unordered_map<string, int> key;
     unordered_map<string, string> parent;
