@@ -3,13 +3,7 @@
 #include<list>
 #include<utility>
 #include<unordered_map>
-
-#include <algorithm>
-#include <stack>
-#include <unordered_set>
-#include <queue>
-#include<sstream>
-#include<limits>
+#include<queue>
 using namespace std;
 class City
 {
@@ -17,6 +11,8 @@ public:
     string cityname;
     City();
     City(string cname);
+    string getCityname();
+    string setCityname(string cname);
     void update_cityname(string cname);
 };
 
@@ -40,9 +36,9 @@ public:
     void clearmap();
     void update_cityname(string cityname,string newname);
 	void update_edge(string city1,string city2,int km);
-
-    string DFS(string start_city);
-    string BFS_algo( graph g,string startcity);
+    queue<string> DFS(string start_city);
+    queue<string> BFS_algo( graph g,string startcity);
     string Dijkstra_algo(graph g,string startcity);
+    string topological_sort();
 };
  //GRAPH_H
