@@ -2,63 +2,67 @@
 #include"Headers/User_Interface.h"
 #include <string>
 /*
+Cases:
 1 fail
 0 success
 2 the city was existing
 */
 int User_Inrerface::AddCity(string nameOfCity , graph& myGraph)
 {
-    // cout << "Enter the name of the city: ";
-    //  cin >> nameOfCity;
     if (!(myGraph.checkcity(nameOfCity)))
     {
-
         myGraph.addcity(nameOfCity);
+        cout<<nameOfCity <<" Has Been Added Successfully\n";
         return 0;
     }
-
-    else
-    {
-    cout<<"City was already added "<<endl;
-        return 2;
-    }
+    cout<<"City Already Exists\n";
+    return 2;
 }
 /*
+Cases:
 1 fail
 0 success
 2 city 1 or 2 was not existing
 3 the edge was existing
+4 Wrong Distance Input
+5 Can't add edge form a city to itself
 */
 int User_Inrerface::AddEdge(string nameOfCity1,string nameOfCity2,int distance, graph& myGraph)
 {
-
-    //cout << "Enter the name of city 1: ";
-    //cin >> nameOfCity1;
-    //cout << "Enter the name of city 2: ";
-    // cin >> nameOfCity2;
-    //       cout << "Enter the distance (in KM): ";
-    //     cin >> distance;
     if (myGraph.checkcity(nameOfCity1) && myGraph.checkcity(nameOfCity2)) {
         if (!(myGraph.checkedge(nameOfCity1, nameOfCity2)))
         {
-
-            myGraph.addedge(nameOfCity1, nameOfCity2, distance);
-            return 0;
+            if (distance == 0) {
+                cout<<"Distance Is Empty Or Wrong\n";
+                return 4;
+            }
+            else if (nameOfCity1 == nameOfCity2) {
+                cout<<"Can't Connect A City To Itself\n";
+                return 5;
+            }
+            else {
+                myGraph.addedge(nameOfCity1, nameOfCity2, distance);
+                cout<<"Edge Between "<<nameOfCity1<<" And "<<nameOfCity2<<"Has Been Added Successfully\n";
+                return 0;
+            }
         }
         else if (myGraph.checkedge(nameOfCity1, nameOfCity2))
         {
-            cout<<"Edge already exists "<<endl;
+            cout<<"Edge Already Exists\n";
             return 3;
         }
         else
+            cout<<"Adding Edge Failed\n";
             return 1;
     }
     else if(!(myGraph.checkcity(nameOfCity1) && myGraph.checkcity(nameOfCity2)))
     {
+        cout<<"One Of The Cities Doesn't Exist\n";
         return 2;
     }
     else
     {
+        cout<<"Adding Edge Failed\n";
         return 1;
     }
 }
@@ -69,18 +73,20 @@ int User_Inrerface::AddEdge(string nameOfCity1,string nameOfCity2,int distance, 
 */
 int User_Inrerface::DeleteCity(string nameCity, graph& myGraph)
 {
-    // cout << "enter the name of city: ";
-    //   cin >> nameCity;
+
     if (myGraph.checkcity(nameCity)) {
         myGraph.deletecity(nameCity);
+        cout<<nameCity<<" Has Been Deleted Successfully\n";
         return 0;
     }
     else if (!myGraph.checkcity(nameCity))
     {
+        cout<<"City Doesn't Exist\n";
         return 2;
     }
     else
     {
+        cout<<"Deleting City Faild\n";
         return 1;
     }
 }
@@ -92,34 +98,34 @@ int User_Inrerface::DeleteCity(string nameCity, graph& myGraph)
 */
 int User_Inrerface::DeleteEdge(string nameOfCity1, string nameOfCity2, graph& myGraph)
 {
-    //cout << "to delete edge you must enter two city /n";
-    //cout << "enter  the city 1:";
-    //cin >> cityName1;
-    //cout << "enter  the city 2:";
-    //cin >> cityName2;
     if (myGraph.checkcity(nameOfCity1) && myGraph.checkcity(nameOfCity2))
     {
         if (myGraph.checkedge(nameOfCity1, nameOfCity2))
         {
             myGraph.delete_edge(nameOfCity1, nameOfCity2);
+            cout<<"Edge Between "<<nameOfCity1<<" And "<<nameOfCity2<<"Has Been Deleted Successfully\n";
             return 0;
         }
         else if (!(myGraph.checkedge(nameOfCity1, nameOfCity2)))
         {
+            cout<<"Edge Doesn't Exist\n";
             return 3;
         }
         else
         {
+            cout<<"Deleting Edge Failed\n";
             return 1;
         }
 
     }
     else if (!(myGraph.checkcity(nameOfCity1) && myGraph.checkcity(nameOfCity2)))
     {
+        cout<<"One Of The Cities Doesn't Exist\n";
         return 2;
     }
     else
     {
+        cout<<"Deleting Edge Failed\n";
         return 1;
     }
 }
@@ -135,25 +141,30 @@ int User_Inrerface::EditEdge(string nameOfCity1, string nameOfCity2,int distance
     {
         if (myGraph.checkedge(nameOfCity1, nameOfCity2))
         {
+            cout<<"Edge Between "<<nameOfCity1<<" And "<<nameOfCity2<<"Has Been Edited Successfully, New Value -> "<<distance<<endl;
             myGraph.update_edge(nameOfCity1, nameOfCity2,  distance);
             return 0;
         }
         else if (!(myGraph.checkedge(nameOfCity1, nameOfCity2)))
         {
+            cout<<"Edge Doesn't Exist\n";
             return 3;
         }
         else
         {
+            cout<<"Editing Edge Failed\n";
             return 1;
         }
 
     }
     else if (!(myGraph.checkcity(nameOfCity1) && myGraph.checkcity(nameOfCity2)))
     {
+        cout<<"One Of The Cities Doesn't Exist\n";
         return 2;
     }
     else
     {
+        cout<<"Editing Edge Failed\n";
         return 1;
     }
 }
@@ -163,30 +174,35 @@ int User_Inrerface::EditEdge(string nameOfCity1, string nameOfCity2,int distance
 2 the city was not existing
 3 the new name was taken
 */
-int User_Inrerface::UpName(string nameOfCity1, string nameOfCity2, graph& myGraph)
+int User_Inrerface::UpdateName(string nameOfCity1, string nameOfCity2, graph& myGraph)
 {
     if (myGraph.checkcity(nameOfCity1))
     {
         if (!(myGraph.checkcity(nameOfCity2)))
         {
+            cout<<nameOfCity1<<" Has Been Updated To "<<nameOfCity2<<endl;
             myGraph.update_cityname(nameOfCity1,nameOfCity2);
             return 0;
         }
         else if (myGraph.checkcity(nameOfCity2))
         {
+            cout<<"Name Already Exists\n";
             return 3;
         }
         else
         {
+            cout<<"Editing Name Of City Faild\n";
             return 1;
         }
     }
     else if (!(myGraph.checkcity(nameOfCity1)))
     {
+        cout<<"City Doesn't Exist\n";
         return 2;
     }
     else
     {
+        cout<<"Editing Name Of City Faild\n";
         return 1;
     }
 }
@@ -198,72 +214,47 @@ int User_Inrerface::ClearMap(graph& myGraph)
 {
     if (myGraph.checkmap())
     {
+        cout<<"Graph Has Been Cleared Successfully\n";
         myGraph.clearmap();
         return 0;
     }
-    else
-        return 1;
+    cout<<"Graph Couldn't Be Cleared\n";
+    return 1;
 }
 /*
-0 fail
-1 success
-2 the city was existing
+normal string -> success
+"1" -> fail
 */
- string User_Inrerface::TraverDfs(string nameofcity, graph& myGraph, queue<string> q, string s){
-    if (myGraph.checkcity(nameofcity)) // This condition is always true; consider removing it
+ string User_Inrerface::TraverseDfs(string nameofcity, graph& myGraph){
+     if (myGraph.checkcity(nameofcity))
     {
-     q=   myGraph.DFS(nameofcity);
-        s = "";
-        while(!q.empty())
-            {
-            s+=q.front();
-            q.pop();
-            s+=" ";
-            }
-
+     string s = myGraph.DFS(nameofcity);
         return s;
     }
-
-
-    else if (!myGraph.checkcity(nameofcity))
-    {
-        return "2";
-    }
-    else
-    {
         return "1";
-    }
 }
-
 /*
-1 fail
-0 success
-2 the city was existing
+normal string -> success
+"1" -> fail
 */
-string User_Inrerface::TraverBfs(graph traverGraph,string nameofcity, graph& myGraph,queue<string> q, string s)
+string User_Inrerface::TraverseBfs(string nameofcity, graph &myGraph)
 {
- if (myGraph.checkcity(nameofcity)) // This condition is always true; consider removing it
+    if (myGraph.checkcity(nameofcity))
     {
-     q=   myGraph.BFS_algo(traverGraph,nameofcity);
-        s = "";
-        while(!q.empty())
-            {
-            s+=q.front();
-            q.pop();
-            s+=" ";
-            }
-
+        string s = myGraph.BFS_algo(myGraph, nameofcity);
+        cout<<"Traversing Cities Using Breadth First Search:\n"<<s<<endl;
         return s;
     }
-
-
-    else if (!myGraph.checkcity(nameofcity))
+    return "1";
+}
+string User_Inrerface::Dijkstra(string nameofcity, graph &myGraph)
+{
+    if (myGraph.checkcity(nameofcity))
     {
-        return "2";
+        string s = myGraph.Dijkstra_algo(myGraph, nameofcity);
+        cout<<"Using Dijkstra's Algorithm:\n"<<s<<endl;
+        return s;
     }
-    else
-    {
-        return "1";
-    }
+    return "1";
 }
 

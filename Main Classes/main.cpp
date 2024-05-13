@@ -13,11 +13,15 @@ int main(int argc, char *argv[])
     widget->resize(800, 600);
 
     QObject::connect(widget, &GraphWidget::exitToMainMenu, [&] {
-        widget->hide();
-        if (welcomePage.exec() == QDialog::Accepted) {
-            widget->show();
-        }
-    });
+    widget->saveGraphData("../Data/GUIgraph_data.txt");  // Save the graph data
+        widget->saveToFile("../Data/graph_data.txt");
+    widget->hide();
+    if (welcomePage.exec() == QDialog::Accepted) {
+        widget->show();
+    }
+});
+
+
 
     if (welcomePage.exec() == QDialog::Accepted) {
         widget->show();

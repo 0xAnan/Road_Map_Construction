@@ -1,0 +1,12 @@
+
+Zefta
+Mansoura
+Cairo
+Alexandria
+Aswan
+EDGES
+Cairo Zefta 1
+Alexandria Zefta 6
+Alexandria Mansoura 50
+Aswan Cairo 10
+Aswan Mansoura 6

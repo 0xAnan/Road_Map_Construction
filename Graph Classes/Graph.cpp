@@ -11,7 +11,6 @@ City::City() {
 //----------------------------------------------------CITY----------------------------------------------------//
 void graph ::addcity(string newcity) {
     mymap.emplace(newcity,list<pair<string,int>>());
-    cout << newcity<<" is added successfully."<<endl;
     citycount++;
 }
 
@@ -55,9 +54,7 @@ void graph::deletecity(string cityname) {
 
         // Delete cityname from the map
         mymap.erase(cityname);
-        cout << cityname << " deleted successfully." << endl;
     } else {
-        cout << "City does not exist." << endl;
     }
 }
 
@@ -141,32 +138,30 @@ void graph:: printadjcentlist()
     }
 }
 //-----------------------------------------------------ALGORITHMS-----------------------------------------------//
-queue <string> graph::DFS(string start_city)
+string graph::DFS(string start_city)
 {
-        unordered_set<string> visited;
-        stack<string> stack;
-        queue<string> queue;
-        stack.push(start_city);
-        while (!stack.empty()) {
-            string current_city = stack.top();
-            stack.pop();
-            queue.push(current_city);
+    unordered_set<string> visited;
+    stack<string> stack;
+    string output;
+    stack.push(start_city);
+    while (!stack.empty()) {
+        string current_city = stack.top();
+        stack.pop();
 
-            if (visited.find(current_city) == visited.end()) {
-                visited.insert(current_city);
+        if (visited.find(current_city) == visited.end()) {
+            visited.insert(current_city);
+            output+=current_city+" -> ";
 
-
-                for (auto neighbor : mymap[current_city]) {
-                    if (visited.find(neighbor.first) == visited.end()) {
-                        stack.push(neighbor.first);
-                    }
+            for (auto neighbor : mymap[current_city]) {
+                if (visited.find(neighbor.first) == visited.end()) {
+                    stack.push(neighbor.first);
                 }
             }
         }
-        return queue;
     }
-
-     string graph :: BFS_algo( graph g,string startcity)
+    return output;
+}
+string graph :: BFS_algo( graph g,string startcity)
     {
         unordered_map<string,bool>visted;
         queue<string>q;
@@ -189,7 +184,8 @@ queue <string> graph::DFS(string start_city)
         }
     return result;
     }
-    string graph :: Dijkstra_algo(graph g,string startcity){
+
+string graph :: Dijkstra_algo(graph g,string startcity){
     priority_queue<pair<int,string>,vector<pair<int,string>>, greater<pair<int,string>>> pq;
     unordered_map<string,int>distances;
     for(const auto & city : g.mymap){

@@ -12,9 +12,12 @@ public:
     int DeleteEdge(string cityName1, string cityName2, graph& myGraph);
     int DeleteCity(string nameCity, graph& myGraph);
     int EditEdge(string nameOfCity1, string nameOfCity2, int distance, graph& myGraph);
-    int UpName(string nameOfCity1, string nameOfCity2, graph& myGraph);
+    int UpdateName(string nameOfCity1, string nameOfCity2, graph& myGraph);
     int ClearMap( graph& myGraph);
-    string TraverBfs(graph traverGraph,string name, graph& myGraph,queue<string> q, string s);
-    string TraverDfs(string name, graph& myGraph, queue<string> q, string s);
+    string TraverseBfs(string nameofcity, graph &myGraph);
+
+    string Dijkstra(string nameofcity, graph &myGraph);
+
+    string TraverseDfs(string nameofcity, graph &myGraph);
 };
 

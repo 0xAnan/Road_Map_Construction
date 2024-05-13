@@ -12,9 +12,13 @@
 #include <QContextMenuEvent>
 #include <QCursor>
 #include <QMessageBox>
+#include <QFile>
+#include <QTextStream>
+#include <QCloseEvent>
 
 #include <map>
 #include <cmath>
+#include <fstream>
 #include <iostream>
 #include "Headers/Graph.h"
 #include "Headers/User_Interface.h"
@@ -45,6 +49,70 @@ public:
     std::map<QPoint, QString, PointComparator> pointNames;  // Stores the names of the points
     QList<QPair<QPair<QPoint, QPoint>, double>> lines;  // Stores the lines in the graph
     QVector<QPair<QPointF, QString>> relativePoints;  // Stores the points relative to the size of the widget
+
+
+    void saveToFileGUI(const QString &filename) {
+        QFile file(filename);
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+            return;
+
+        QTextStream out(&file);
+        // Save points
+        for (const auto &point : points) {
+            out << point.x() << ' ' << point.y() << ' ' << pointNames[point] << '\n';
+        }
+        out << "LINES\n";
+        // Save lines
+        for (const auto &line : lines) {
+            out << pointNames[line.first.first] << ' ' << pointNames[line.first.second] << ' ' << line.second << '\n';
+        }
+    }
+
+    void loadFromFileGUI(const QString &filename) {
+        QFile file(filename);
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+            return;
+
+        QTextStream in(&file);
+        QString line;
+        points.clear();
+        pointNames.clear();
+        lines.clear();
+        relativePoints.clear();
+
+        // Load points
+        while (!(line = in.readLine()).isNull()) {
+            if (line == "LINES") break;
+            int firstSpace = line.indexOf(' ');
+            int secondSpace = line.indexOf(' ', firstSpace + 1);
+            int x = line.left(firstSpace).toInt();
+            int y = line.mid(firstSpace + 1, secondSpace - firstSpace - 1).toInt();
+            QString name = line.mid(secondSpace + 1);
+            QPoint point(x, y);
+            points.push_back(point);
+            pointNames[point] = name;
+            QPointF relativePoint((qreal)x / width(), (qreal)y / height());
+            relativePoints.push_back(qMakePair(relativePoint, name));
+        }
+
+
+        // Load lines
+        while (!(line = in.readLine()).isNull()) {
+            QStringList parts = line.split(' ');
+            QString point1Name = parts[0];
+            QString point2Name = parts[1];
+            double value = parts[2].toDouble();
+            QPoint point1, point2;
+            for (const auto &pair : pointNames) {
+                if (pair.second == point1Name) point1 = pair.first;
+                if (pair.second == point2Name) point2 = pair.first;
+            }
+            lines.push_back(qMakePair(qMakePair(point1, point2), value));
+        }
+    }
+
+
+
 
 
 protected:
@@ -133,7 +201,7 @@ protected:
                     // Update the corresponding point in relativePoints
                     for (auto &pair : relativePoints) {
                         if (pair.first == QPointF((qreal)point.x() / width(), (qreal)point.y() / height())) {
-                            return_value =UI.UpName(pair.second.toStdString(),text.toStdString(),Graph);
+                            return_value =UI.UpdateName(pair.second.toStdString(),text.toStdString(),Graph);
                             if (return_value == 0) {
                                 pair.second = text;
                                 QMessageBox::information(this, tr("Success"), tr("City Name Changed Successfully."));
@@ -211,22 +279,18 @@ protected:
         QWidget::resizeEvent(event);
     }
 
+
+
+
+
 private:
     QPoint *draggedPoint = nullptr;  // The point currently being dragged
 
     // Add a random point to the graph
-    void addRandomPoint() {
-        qreal margin = 0.1;
-        qreal x = QRandomGenerator::global()->generateDouble() * (1.0 - 2*margin) + margin;
-        qreal y = QRandomGenerator::global()->generateDouble() * (1.0 - 2*margin) + margin;
-        QPointF point(x, y);
-        relativePoints.push_back(qMakePair(point, "Test " + QString::number(relativePoints.size() + 1)));
-        updatePoints();
-    }
     void addGraphPoints() {
-        Graph.addcity("alex");
-        Graph.addcity("cairo");
-        Graph.addcity("zefta");
+        //Graph.addcity("alex");
+        //Graph.addcity("cairo");
+        //Graph.addcity("zefta");
         for (auto city : Graph.mymap) {
             qreal margin = 0.1;
             qreal x = QRandomGenerator::global()->generateDouble() * (1.0 - 2*margin) + margin;
@@ -374,6 +438,9 @@ GraphWidget(QWidget *parent = nullptr) : QWidget(parent)
 
 }
 
+    void saveGraphData(const QString &filename) {
+    graph->saveToFileGUI(filename);
+}
     signals:
         void exitToMainMenu();
 public slots:
@@ -470,6 +537,12 @@ public slots:
             //Connection Already Exists
             else if (return_value == 3){
                 QMessageBox::warning(this, tr("Error"), tr("Connection Already Exists."));
+            }
+            else if (return_value == 4){
+                QMessageBox::warning(this, tr("Error"), tr("Distance Is Empty Or Wrong."));
+            }
+            else if (return_value == 5){
+                QMessageBox::warning(this, tr("Error"), tr("Can't Connect A City To Itself."));
             }
             //TODO If value == 0
         }
@@ -595,7 +668,7 @@ public slots:
     void displayAlgorithms() {
     QStringList algorithmNamesList;
     // Add your algorithm names here
-    algorithmNamesList << "BFS" << "DFS" << "Dijkestra" << "Prim's Algorithm";
+    algorithmNamesList << "Breadth First Search" << "Depth First Search" << "Dijkestra's Algorithm" << "Prim's Algorithm";
 
     QStringList pointNamesList;
     for (const auto &pair : graph->pointNames) {
@@ -609,18 +682,86 @@ public slots:
         QString pointName = QInputDialog::getItem(this, tr("Select Starting Point"),
                                                   tr("Select a starting point:"), pointNamesList, 0, false, &ok);
         if (ok && !pointName.isEmpty()) {
+
             // Call your algorithm function here with the selected algorithm name and starting point
-            if (algorithmName=="Algorithm 1") {
-                cout<<"1\n";
-            }else if (algorithmName=="Algorithm 2") {
-                cout<<"2\n";
-            }else if (algorithmName=="Algorithm 3") {
-                cout<<"3\n";
+            if (algorithmName=="Breadth First Search") {
+                QString city = QString::fromStdString(UI.TraverseBfs(pointName.toStdString(),Graph));
+                QMessageBox::information(this, tr("BFS"), city);
+                cout<<"Breadth First Search\n";
+            }
+            else if (algorithmName=="Depth First Search") {
+                QString city = QString::fromStdString(UI.TraverseDfs(pointName.toStdString(),Graph));
+                QMessageBox::information(this, tr("DFS"), city);
+                cout<<"Depth First Search\n";
+            }
+            else if (algorithmName=="Dijkestra's Algorithm") {
+                QString city = QString::fromStdString(UI.Dijkstra(pointName.toStdString(),Graph));
+                QMessageBox::information(this, tr("Dijkstra"), city);
+                cout<<"Dijkestra\n";
+            }
+            else if (algorithmName=="Prim's Algorithm") {
+                cout<<"Prim's Algorithm\n";
             }
         }
     }
 }
 
+    void saveToFile(const string &filename) {
+    ofstream file(filename);
+    if (!file.is_open())
+        return;
+
+    // Save cities
+    for (const auto &city : Graph.mymap) {
+        file << city.first << '\n';
+    }
+    file << "EDGES\n";
+    // Save edges
+    for (const auto &city : Graph.mymap) {
+        for (const auto &edge : city.second) {
+            if (city.first < edge.first) {
+                file << city.first << ' ' << edge.first << ' ' << edge.second << '\n';
+            }
+        }
+    }
+}
+
+
+    void loadFromFile(const string &filename ) {
+    ifstream file(filename);
+    if (!file.is_open())
+        return;
+
+    Graph.mymap.clear();
+    Graph.citycount = 0;
+    string line;
+    // Load cities
+    while (getline(file, line)) {
+        if (line == "EDGES") break;
+        Graph.addcity(line);
+    }
+    // Load edges
+    string city1, city2;
+    int km;
+    while (file >> city1 >> city2 >> km) {
+        Graph.addedge(city1, city2, km);
+    }
+}
+
+    void closeEvent(QCloseEvent *event) override {
+    cout<<"Close\n";
+    graph->saveToFileGUI("../Data/GUIgraph_data.txt");
+    // ... (add cities and edges to g)
+
+    event->accept();
+}
+
+    void showEvent(QShowEvent *event) override {
+    cout<<"Open\n";
+    graph->loadFromFileGUI("../Data/GUIgraph_data.txt");
+    loadFromFile("../Data/graph_data.txt");
+    QWidget::showEvent(event);
+}
 
 
 private:

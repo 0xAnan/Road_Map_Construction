@@ -1,0 +1,11 @@
+248 171 Cairo
+332 417 Zefta
+420 275 Mansoura
+71 285 Alexandria
+157 406 Aswan
+LINES
+Aswan Cairo 10
+Cairo Zefta 1
+Alexandria Zefta 6
+Alexandria Mansoura 50
+Aswan Mansoura 6
