@@ -222,3 +222,72 @@ string graph :: Dijkstra_algo(graph g,string startcity){
     return result.str();
     }
 
+string findMinKey(const unordered_map<string, int>& key, const unordered_map<string, bool>& visited) {
+    int min = INT_MAX;
+    string minKey;
+
+    for (const auto& pair : key) {
+        //since both visited and key have the .first which is the city name we initialized above
+        // we will use variable 'pair' to access city name on visited map and to access min value "key value/weight value"
+        //if first element (city) in visited not visited and first element (city) key(weight) value smaller than min
+        if (!visited.at(pair.first) && pair.second < min) {
+            // << "\n\nvis: " << visited.at(pair.first) << endl;
+            min = pair.second; //save weight of key in min var
+            minKey = pair.first; //get city name
+        }
+    }
+
+    return minKey;
+}
+
+pair<string, list<string>> Prims(unordered_map<string, list<pair<string, int>>> mymap) {
+    unordered_map<string, bool> visited;
+    unordered_map<string, int> key;
+    unordered_map<string, string> parent;
+    int totalWeight = 0;
+    //initialize visited map & key map
+    for (const auto& pair : mymap) {
+        string c1 = pair.first;
+        key[c1] = INT_MAX;
+        visited[c1] = false;
+    }
+
+    // Start with the first vertex
+    string startVertex = mymap.begin()->first;
+    //The weight of the first element always equals 0
+    key[startVertex] = 0;
+    //number of vertices
+    for (int i = 0; i < mymap.size() - 1; ++i) {
+        //we found the min key (weight) and visited(true)
+        string u = findMinKey(key, visited);
+        visited[u] = true;
+
+        //iterating inside specific element in the graph
+        //by another words iterating in the list of specific array index
+        //accessing the list of u (neighbors)
+        for (const auto& neighbor : mymap[u]) {
+            // v is the name of the city connected to u city
+            string v = neighbor.first;
+            // v is the weight of the edge connecting u city to v city
+            //it's weight in the map
+            int weight = neighbor.second;
+            //checking.. if that neighbor(v) not visited & neighbor(v)
+            //checking.. if neighbor(v) weight smaller than it's value in key array
+            if (!visited[v] && weight < key[v]) {
+                key[v] = weight;
+                parent[v] = u;
+            }
+        }
+    }
+
+    pair<string, list<string>> MSTpair;
+    for (const auto& pair : parent) {
+        string line = pair.second + " - " + pair.first;
+        MSTpair.second.push_back(line);
+        totalWeight += key[pair.first];
+    }
+    MSTpair.first = to_string(totalWeight);
+
+    return MSTpair;
+}
+
