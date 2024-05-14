@@ -3,6 +3,11 @@
 #include<list>
 #include<utility>
 #include<unordered_map>
+#include <stack>
+#include <unordered_set>
+#include <algorithm>
+#include <limits>
+#include <sstream>
 #include<queue>
 using namespace std;
 class City
@@ -36,8 +41,9 @@ public:
     void clearmap();
     void update_cityname(string cityname,string newname);
 	void update_edge(string city1,string city2,int km);
-    queue<string> DFS(string start_city);
-    queue<string> BFS_algo( graph g,string startcity);
+
+    string DFS(string start_city);
+    string BFS_algo( graph g,string startcity);
     string Dijkstra_algo(graph g,string startcity);
     string findMinKey(const unordered_map<string, int>& key, const unordered_map<string, bool>& visited);
     pair<string, list<string>> Prims(unordered_map<string, list<pair<string, int>>> mymap);

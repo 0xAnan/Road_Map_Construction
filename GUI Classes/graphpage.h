@@ -15,6 +15,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QCloseEvent>
+#include <QGroupBox>
 
 #include <map>
 #include <cmath>
@@ -49,6 +50,7 @@ public:
     std::map<QPoint, QString, PointComparator> pointNames;  // Stores the names of the points
     QList<QPair<QPair<QPoint, QPoint>, double>> lines;  // Stores the lines in the graph
     QVector<QPair<QPointF, QString>> relativePoints;  // Stores the points relative to the size of the widget
+    QList<QPair<QPair<QPoint, QPoint>, double>> highlightedLines;  // Stores the lines to be highlighted
 
 
     void saveToFileGUI(const QString &filename) {
@@ -58,8 +60,8 @@ public:
 
         QTextStream out(&file);
         // Save points
-        for (const auto &point : points) {
-            out << point.x() << ' ' << point.y() << ' ' << pointNames[point] << '\n';
+        for (const auto &pair : relativePoints) {
+            out << pair.first.x() << ' ' << pair.first.y() << ' ' << pair.second << '\n';
         }
         out << "LINES\n";
         // Save lines
@@ -85,16 +87,13 @@ public:
             if (line == "LINES") break;
             int firstSpace = line.indexOf(' ');
             int secondSpace = line.indexOf(' ', firstSpace + 1);
-            int x = line.left(firstSpace).toInt();
-            int y = line.mid(firstSpace + 1, secondSpace - firstSpace - 1).toInt();
+            qreal x = line.left(firstSpace).toDouble();
+            qreal y = line.mid(firstSpace + 1, secondSpace - firstSpace - 1).toDouble();
             QString name = line.mid(secondSpace + 1);
-            QPoint point(x, y);
-            points.push_back(point);
-            pointNames[point] = name;
-            QPointF relativePoint((qreal)x / width(), (qreal)y / height());
+            QPointF relativePoint(x, y);
             relativePoints.push_back(qMakePair(relativePoint, name));
         }
-
+        updatePoints();
 
         // Load lines
         while (!(line = in.readLine()).isNull()) {
@@ -111,8 +110,22 @@ public:
         }
     }
 
-
-
+    void highlightLines(const QStringList &cityPairs) {
+        highlightedLines.clear();
+        for (const auto &cityPair : cityPairs) {
+            QStringList cities = cityPair.split(" - ");
+            if (cities.size() != 2) continue;
+            QString city1 = cities[0];
+            QString city2 = cities[1];
+            for (const auto &line : lines) {
+                if ((pointNames[line.first.first] == city1 && pointNames[line.first.second] == city2) ||
+                    (pointNames[line.first.first] == city2 && pointNames[line.first.second] == city1)) {
+                    highlightedLines.push_back(line);
+                    break;
+                    }
+            }
+        }
+    }
 
 
 protected:
@@ -163,6 +176,15 @@ protected:
 
             // Update the lines connected to the point
             for (auto &line : lines) {
+                if (line.first.first == oldPos) {
+                    line.first.first = newPos;
+                } else if (line.first.second == oldPos) {
+                    line.first.second = newPos;
+                }
+            }
+
+            // Update the highlighted lines connected to the point
+            for (auto &line : highlightedLines) {
                 if (line.first.first == oldPos) {
                     line.first.first = newPos;
                 } else if (line.first.second == oldPos) {
@@ -224,12 +246,13 @@ protected:
     }
 
     // Event handler for paint events
-    void paintEvent(QPaintEvent *event) override
-    {
+    // Event handler for paint events
+    void paintEvent(QPaintEvent *event) override {
         QPainter painter(this);
         painter.setRenderHint(QPainter::Antialiasing);
 
         QPen pen;  // Declare the QPen object here
+        pen.setWidth(2);  // Set the width of the pen to 3
 
         QFont font = painter.font() ;
         font.setPointSize ( 14 ); // Set the size of font
@@ -238,13 +261,18 @@ protected:
 
         // Draw lines
         for (const auto &line : lines) {
+            if (highlightedLines.contains(line)) {
+                pen.setColor(Qt::green);
+            } else {
+                pen.setColor(Qt::darkGray);
+            }
+            painter.setPen(pen);
             painter.drawLine(line.first.first, line.first.second);
-            QPoint midpoint = (line.first.first + line.first.second) / 2;
 
-            // Set the color of the text to be more visible, e.g., white
+            // Always draw the line value in white
             pen.setColor(Qt::white);
             painter.setPen(pen);
-
+            QPoint midpoint = (line.first.first + line.first.second) / 2;
             painter.drawText(midpoint, QString::number(line.second));
         }
 
@@ -262,6 +290,7 @@ protected:
         }
     }
 
+
     // Event handler for show events
     void showEvent(QShowEvent *event) override
     {
@@ -274,6 +303,24 @@ protected:
     // Event handler for resize events
     void resizeEvent(QResizeEvent *event) override
     {
+        // Update the positions of the lines
+        for (auto &line : lines) {
+            QPoint point1 = line.first.first;
+            QPoint point2 = line.first.second;
+            for (const auto &pair : relativePoints) {
+                if (pair.second == pointNames[point1]) {
+                    int x = pair.first.x() * width();
+                    int y = pair.first.y() * height();
+                    line.first.first = QPoint(x, y);
+                }
+                if (pair.second == pointNames[point2]) {
+                    int x = pair.first.x() * width();
+                    int y = pair.first.y() * height();
+                    line.first.second = QPoint(x, y);
+                }
+            }
+        }
+
         // Update the positions of the points
         updatePoints();
         QWidget::resizeEvent(event);
@@ -382,32 +429,33 @@ GraphWidget(QWidget *parent = nullptr) : QWidget(parent)
                       "QPushButton:hover {background-color: #45a049;}";
 
 
-    QPushButton *addButton = new QPushButton(tr("Add Point"), this);
+
+    QPushButton *addButton = new QPushButton(tr("Add City"), this);
     addButton->setStyleSheet(buttonStyle);
     connect(addButton, &QPushButton::clicked, this, &GraphWidget::addPoint);
     sidebarLayout->addWidget(addButton);
 
-    QPushButton *clearButton = new QPushButton(tr("Clear All Points"), this);
+    QPushButton *clearButton = new QPushButton(tr("Clear All Cities"), this);
     clearButton->setStyleSheet(buttonStyle);
     connect(clearButton, &QPushButton::clicked, this, &GraphWidget::clearPoints);
     sidebarLayout->addWidget(clearButton);
 
-    QPushButton *connectButton = new QPushButton(tr("Connect Points"), this);
+    QPushButton *connectButton = new QPushButton(tr("Connect Cities"), this);
     connectButton->setStyleSheet(buttonStyle);
     connect(connectButton, &QPushButton::clicked, this, &GraphWidget::connectPoints);
     sidebarLayout->addWidget(connectButton);
 
-    QPushButton *removePointButton = new QPushButton(tr("Remove Point"), this);
+    QPushButton *removePointButton = new QPushButton(tr("Remove City"), this);
     removePointButton->setStyleSheet(buttonStyle);
     connect(removePointButton, &QPushButton::clicked, this, &GraphWidget::removeSpecificPoint);
     sidebarLayout->addWidget(removePointButton);
 
-    QPushButton *removeLineButton = new QPushButton(tr("Remove Line"), this);
+    QPushButton *removeLineButton = new QPushButton(tr("Remove Edge"), this);
     removeLineButton->setStyleSheet(buttonStyle);
     connect(removeLineButton, &QPushButton::clicked, this, &GraphWidget::removeSpecificLine);
     sidebarLayout->addWidget(removeLineButton);
 
-    QPushButton *editLineButton = new QPushButton(tr("Edit Line"), this);
+    QPushButton *editLineButton = new QPushButton(tr("Edit Edge"), this);
     editLineButton->setStyleSheet(buttonStyle);
     connect(editLineButton, &QPushButton::clicked, this, &GraphWidget::editLine);
     sidebarLayout->addWidget(editLineButton);
@@ -416,6 +464,11 @@ GraphWidget(QWidget *parent = nullptr) : QWidget(parent)
     displayAlgorithmsButton->setStyleSheet(buttonStyle);
     connect(displayAlgorithmsButton, &QPushButton::clicked, this, &GraphWidget::displayAlgorithms);
     sidebarLayout->addWidget(displayAlgorithmsButton);
+
+    QPushButton *resetButton = new QPushButton(tr("Reset Graph"), this);
+    resetButton->setStyleSheet(buttonStyle);
+    connect(resetButton, &QPushButton::clicked, this, &GraphWidget::resetHighlights);
+    sidebarLayout->addWidget(resetButton);
 
 
     QPushButton *exitButton = new QPushButton(tr("Exit to Main Menu"), this);
@@ -678,11 +731,20 @@ public slots:
     bool ok;
     QString algorithmName = QInputDialog::getItem(this, tr("Select Algorithm"),
                                                   tr("Select an algorithm:"), algorithmNamesList, 0, false, &ok);
-    if (ok && !algorithmName.isEmpty()) {
+    if (ok && algorithmName=="Prim's Algorithm") {
+        QStringList cityPairs;
+        for (const auto &str : UI.Prims(Graph).second) {
+            cityPairs << QString::fromStdString(str);
+        }
+        graph->highlightLines(cityPairs);
+        QString city = QString::fromStdString(UI.Prims(Graph).first);
+        QMessageBox::information(this, tr("Prim's Algorithm"), city);
+        cout<<"Prim's Algorithm\n";
+    }
+    else if (ok && !algorithmName.isEmpty() ) {
         QString pointName = QInputDialog::getItem(this, tr("Select Starting Point"),
                                                   tr("Select a starting point:"), pointNamesList, 0, false, &ok);
-        if (ok && !pointName.isEmpty()) {
-
+        if ((ok && !pointName.isEmpty() )) {
             // Call your algorithm function here with the selected algorithm name and starting point
             if (algorithmName=="Breadth First Search") {
                 QString city = QString::fromStdString(UI.TraverseBfs(pointName.toStdString(),Graph));
@@ -699,11 +761,13 @@ public slots:
                 QMessageBox::information(this, tr("Dijkstra"), city);
                 cout<<"Dijkestra\n";
             }
-            else if (algorithmName=="Prim's Algorithm") {
-                cout<<"Prim's Algorithm\n";
-            }
         }
     }
+}
+
+    void resetHighlights() {
+    graph->highlightedLines.clear();
+    graph->update();
 }
 
     void saveToFile(const string &filename) {
@@ -725,7 +789,6 @@ public slots:
         }
     }
 }
-
 
     void loadFromFile(const string &filename ) {
     ifstream file(filename);

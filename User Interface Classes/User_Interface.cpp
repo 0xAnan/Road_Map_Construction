@@ -258,3 +258,9 @@ string User_Inrerface::Dijkstra(string nameofcity, graph &myGraph)
     return "1";
 }
 
+pair<string, list<string>> User_Inrerface::Prims(graph &myGraph)
+{
+        pair<string, list<string>> s = myGraph.Prims(myGraph.mymap);
+        cout<<"Using Prim's Algorithm:\n"<<s.first<<endl;
+        return s;
+}

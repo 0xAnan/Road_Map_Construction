@@ -18,6 +18,7 @@ public:
 
     string Dijkstra(string nameofcity, graph &myGraph);
 
+    pair<string, list<string>> Prims(graph &myGraph);
+
     string TraverseDfs(string nameofcity, graph &myGraph);
 };
-
