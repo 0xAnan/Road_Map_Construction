@@ -44,7 +44,7 @@ public:
 
     string DFS(string start_city);
     string BFS(string startcity);
-    string Dijkstra(string startcity);
+    pair<string,list<string>> Dijkstra(string startcity);
     string findMinKey(const unordered_map<string, int>& key, const unordered_map<string, bool>& visited);
     pair<string, list<string>> Prims(unordered_map<string, list<pair<string, int>>> mymap);
 

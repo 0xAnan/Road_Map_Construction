@@ -210,11 +210,13 @@ string graph :: BFS(string startcity)
     return result;
     }
 
-string graph :: Dijkstra(string startcity){
+pair<string,list<string>> graph :: Dijkstra(string startcity){
     priority_queue<pair<int,string>,vector<pair<int,string>>, greater<pair<int,string>>> pq;
     unordered_map<string,int>distances;
+    unordered_map<string,list<string>>paths;
     for(const auto & city : mymap){
     distances[city.first]=numeric_limits<int>::max();
+        paths[city.first]=list<string>();
     }
     distances[startcity]=0;
     pq.push(make_pair(0,startcity));
@@ -229,9 +231,14 @@ string graph :: Dijkstra(string startcity){
     int distance_to_neighbor=neighbor.second;
     int total_distance=distances[current.second] +  distance_to_neighbor;
     if(distances[neighbor_city] > total_distance){
-    distances[neighbor_city]=total_distance;
-    pq.push(make_pair(total_distance,neighbor_city));
+        distances[neighbor_city]=total_distance;
+        paths[neighbor_city]=paths[current.second];
+        paths[neighbor_city].push_back(current.second);
+    }else if(distances[neighbor_city]==total_distance)
+    {
+        paths[neighbor_city].push_back(current.second);
     }
+        pq.push(make_pair(total_distance, neighbor_city));
     }
     }
     stringstream result;
@@ -242,9 +249,17 @@ string graph :: Dijkstra(string startcity){
     result << city_name << " : unreachable" <<endl;
     }else{
      result << city_name << ": "<<distance<<" KM" <<endl;
+        if(!paths[city_name].empty())
+        {
+            result<<" shortest Paths:"<<endl;
+            for(const auto &path: paths[city_name])
+            {
+                result <<"   - "<<path<<endl;
+            }
+        }
     }
     }
-    return result.str();
+    return make_pair(result.str(),paths[startcity]);
     }
 
 string graph::findMinKey(const unordered_map<string, int>& key, const unordered_map<string, bool>& visited) {
