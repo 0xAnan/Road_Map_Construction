@@ -21,6 +21,10 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <string>
+#include <sstream>
+#include <vector>
+#include <iostream>
 #include "Headers/Graph.h"
 #include "Headers/User_Interface.h"
 
@@ -206,37 +210,37 @@ protected:
         draggedPoint = nullptr;
     }
 
-    // Event handler for context menu events
-    void contextMenuEvent(QContextMenuEvent *event) override
-    {
+    void contextMenuEvent(QContextMenuEvent *event) override {
         // If a point is right-clicked, allow the user to edit its name
         for (auto &point : points) {
             if (QLineF(event->pos(), point).length() < 10.0) {
                 bool ok;
-                QString text = QInputDialog::getText(this, tr("Edit Point Name"),
-                                                     tr("New name:"), QLineEdit::Normal,
-                                                     pointNames[point], &ok);
-                if (ok && !text.isEmpty()) {
-                    // Update the point's name in pointNames
-                    pointNames[point] = text;
+                QString newName = QInputDialog::getText(this, tr("Edit Point Name"),
+                                                        tr("New name:"), QLineEdit::Normal,
+                                                        pointNames[point], &ok);
+                if (ok && !newName.isEmpty()) {
+                    QString oldName = pointNames[point];
 
-                    // Update the corresponding point in relativePoints
-                    for (auto &pair : relativePoints) {
-                        if (pair.first == QPointF((qreal)point.x() / width(), (qreal)point.y() / height())) {
-                            return_value =UI.UpdateName(pair.second.toStdString(),text.toStdString(),Graph);
-                            if (return_value == 0) {
-                                pair.second = text;
-                                QMessageBox::information(this, tr("Success"), tr("City Name Changed Successfully."));
+                    // Update the backend data structure
+                    return_value = UI.UpdateName(oldName.toStdString(), newName.toStdString(), Graph);
+                    if (return_value == 0) {
+                        // Update the point's name in pointNames
+                        pointNames[point] = newName;
+
+                        // Update the corresponding point in relativePoints
+                        for (auto &pair : relativePoints) {
+                            if (pair.second == oldName) {
+                                pair.second = newName;  // Update the name in relativePoints
+                                break;
                             }
-                            else if (return_value == 1)
-                                QMessageBox::warning(this, tr("Error"), tr("Changing The City Name Failed."));
-                            else if (return_value == 2)
-                                QMessageBox::warning(this, tr("Error"), tr("The City Doesn't Exist."));
-                            else if (return_value == 3)
-                                QMessageBox::warning(this, tr("Error"), tr("The New Name Already Exists."));
-                            
-                            break;
                         }
+                        QMessageBox::information(this, tr("Success"), tr("City Name Changed Successfully."));
+                    } else if (return_value == 1) {
+                        QMessageBox::warning(this, tr("Error"), tr("Changing The City Name Failed."));
+                    } else if (return_value == 2) {
+                        QMessageBox::warning(this, tr("Error"), tr("The City Doesn't Exist."));
+                    } else if (return_value == 3) {
+                        QMessageBox::warning(this, tr("Error"), tr("The New Name Already Exists."));
                     }
                     update();
                 }
@@ -244,6 +248,7 @@ protected:
             }
         }
     }
+
 
     // Event handler for paint events
     // Event handler for paint events
@@ -745,7 +750,6 @@ public slots:
         QString pointName = QInputDialog::getItem(this, tr("Select Starting Point"),
                                                   tr("Select a starting point:"), pointNamesList, 0, false, &ok);
         if ((ok && !pointName.isEmpty() )) {
-            // Call your algorithm function here with the selected algorithm name and starting point
             if (algorithmName=="Breadth First Search") {
                 QString city = QString::fromStdString(UI.TraverseBfs(pointName.toStdString(),Graph));
                 QMessageBox::information(this, tr("BFS"), city);
@@ -757,9 +761,9 @@ public slots:
                 cout<<"Depth First Search\n";
             }
             else if (algorithmName=="Dijkestra's Algorithm") {
-                QString city = QString::fromStdString(UI.Dijkstra(pointName.toStdString(),Graph));
-                QMessageBox::information(this, tr("Dijkstra"), city);
-                cout<<"Dijkestra\n";
+                QString city ="Shortest Distances From "+pointName+"\n"+QString::fromStdString(UI.Dijkstra(pointName.toStdString(),Graph));
+                QMessageBox::information(this, tr("Dijkestra"), city);
+                cout<<"Dijkestra's Algorithm\n";
             }
         }
     }

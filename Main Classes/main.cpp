@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 
     QObject::connect(widget, &GraphWidget::exitToMainMenu, [&] {
     widget->saveGraphData("../Data/GUIgraph_data.txt");  // Save the graph data
-        widget->saveToFile("../Data/graph_data.txt");
+    widget->saveToFile("../Data/graph_data.txt");
     widget->hide();
     if (welcomePage.exec() == QDialog::Accepted) {
         widget->show();

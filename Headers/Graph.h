@@ -43,8 +43,8 @@ public:
 	void update_edge(string city1,string city2,int km);
 
     string DFS(string start_city);
-    string BFS_algo( graph g,string startcity);
-    string Dijkstra_algo(graph g,string startcity);
+    string BFS(string startcity);
+    string Dijkstra(string startcity);
     string findMinKey(const unordered_map<string, int>& key, const unordered_map<string, bool>& visited);
     pair<string, list<string>> Prims(unordered_map<string, list<pair<string, int>>> mymap);
 

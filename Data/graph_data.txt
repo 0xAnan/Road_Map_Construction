@@ -1,0 +1,13 @@
+Mansoura
+Luxur
+Aswan
+Cairo
+Alex
+Giza
+EDGES
+Aswan Giza 10
+Aswan Luxur 5
+Cairo Giza 5
+Alex Aswan 2
+Alex Giza 4
+Giza Mansoura 25

@@ -6,7 +6,7 @@
 City::City() {
         cityname = " ";
     }
-    City::City(string cname) {
+City::City(string cname) {
     cityname = cname;
 }
 
@@ -32,14 +32,27 @@ bool graph::checkcity(string cityname) {
     return false;
 }
 
-void graph ::update_cityname(string cityname ,string newname){
-    if(checkcity(cityname)==true){
-      if(checkcity(newname)==true){
-        cityname==newname;
-    }
+void graph::update_cityname(string cityname, string newname) {
+    if(checkcity(cityname) && !checkcity(newname)) {
+        auto it = mymap.find(cityname);
+        if(it != mymap.end()) {
+            // Copy the edges and erase the old city
+            list<pair<string, int>> edges = it->second;
+            mymap.erase(it);
+            mymap[newname] = edges;
 
+            // Update the city name in all adjacency lists
+            for(auto& pair : mymap) {
+                for(auto& edge : pair.second) {
+                    if(edge.first == cityname) {
+                        edge.first = newname;
+                    }
+                }
+            }
+        }
     }
-    }
+}
+
 
 void graph::deletecity(string cityname) {
     if (checkcity(cityname)) {
@@ -123,7 +136,6 @@ void graph:: clearmap(){
 
 }
 
-
 void graph:: printadjcentlist()
 {
     for (auto c : mymap)
@@ -161,10 +173,16 @@ string graph::DFS(string start_city)
             }
         }
     }
+
+    // Remove the trailing " -> " from the output string
+    if (output.length() > 4) {
+        output = output.substr(0, output.length() - 4);
+    }
+
     return output;
 }
 
-string graph :: BFS_algo( graph g,string startcity)
+string graph :: BFS(string startcity)
     {
         unordered_map<string,bool>visted;
         queue<string>q;
@@ -174,8 +192,8 @@ string graph :: BFS_algo( graph g,string startcity)
         while(! q.empty()){
             string currentcity=q.front();
             q.pop();
-            result += currentcity+" - ";
-            for(auto neighbor : g.mymap[currentcity])
+            result += currentcity+" -> ";
+            for(auto neighbor : mymap[currentcity])
             {
                 string neighborcity=neighbor.first;
                 if(!visted[neighborcity])
@@ -185,13 +203,17 @@ string graph :: BFS_algo( graph g,string startcity)
                 }
             }
         }
+    // Remove the trailing " -> " from the result string
+    if (result.length() > 4) {
+        result = result.substr(0, result.length() - 4);
+    }
     return result;
     }
 
-string graph :: Dijkstra_algo(graph g,string startcity){
+string graph :: Dijkstra(string startcity){
     priority_queue<pair<int,string>,vector<pair<int,string>>, greater<pair<int,string>>> pq;
     unordered_map<string,int>distances;
-    for(const auto & city : g.mymap){
+    for(const auto & city : mymap){
     distances[city.first]=numeric_limits<int>::max();
     }
     distances[startcity]=0;
@@ -202,7 +224,7 @@ string graph :: Dijkstra_algo(graph g,string startcity){
     pq.pop();
     if(visited.count(current.second)>0)continue;
     visited.insert(current.second);
-    for(const auto & neighbor : g.mymap[current.second]){
+    for(const auto & neighbor : mymap[current.second]){
     string neighbor_city=neighbor.first;
     int distance_to_neighbor=neighbor.second;
     int total_distance=distances[current.second] +  distance_to_neighbor;
@@ -213,7 +235,7 @@ string graph :: Dijkstra_algo(graph g,string startcity){
     }
     }
     stringstream result;
-    for(const auto & city : g.mymap){
+    for(const auto & city : mymap){
     string city_name=city.first;
     int distance=distances[city_name];
     if(distance == numeric_limits<int>::max()){
@@ -293,4 +315,3 @@ pair<string, list<string>> graph::Prims(unordered_map<string, list<pair<string, 
 
     return MSTpair;
 }
-

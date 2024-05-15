@@ -241,7 +241,7 @@ string User_Inrerface::TraverseBfs(string nameofcity, graph &myGraph)
 {
     if (myGraph.checkcity(nameofcity))
     {
-        string s = myGraph.BFS_algo(myGraph, nameofcity);
+        string s = myGraph.BFS(nameofcity);
         cout<<"Traversing Cities Using Breadth First Search:\n"<<s<<endl;
         return s;
     }
@@ -251,7 +251,7 @@ string User_Inrerface::Dijkstra(string nameofcity, graph &myGraph)
 {
     if (myGraph.checkcity(nameofcity))
     {
-        string s = myGraph.Dijkstra_algo(myGraph, nameofcity);
+        string s = myGraph.Dijkstra(nameofcity);
         cout<<"Using Dijkstra's Algorithm:\n"<<s<<endl;
         return s;
     }

@@ -1,1 +1,13 @@
+0.23135 0.223624 Cairo
+0.467422 0.667431 Aswan
+0.74221 0.53211 Luxur
+0.311615 0.493119 Giza
+0.1983 0.752294 Mansoura
+0.515581 0.303899 Alex
 LINES
+Giza Cairo 5
+Giza Aswan 10
+Luxur Aswan 5
+Giza Mansoura 25
+Alex Aswan 2
+Alex Giza 4
