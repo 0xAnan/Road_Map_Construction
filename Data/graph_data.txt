@@ -1,16 +1,16 @@
-F
-E
-B
-D
-C
 A
+C
+D
+B
+E
+F
 EDGES
-E F 5
+A B 1
+A C 5
+C D 25
+C E 10
+D E 4
 B C 4
 B F 12
 B E 2
-D E 4
-C D 25
-C E 10
-A B 1
-A C 5
+E F 5

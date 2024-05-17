@@ -1,5 +1,5 @@
-#include <Headers/Graph.h>
-#include <Headers/User_Interface.h>
+#include <../Headers/Graph.h>
+#include <../Headers/User_Interface.h>
 
 int main()
 {

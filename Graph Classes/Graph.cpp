@@ -45,7 +45,6 @@ void graph::update_cityname(string cityname, string newname) {
     }
 }
 
-
 void graph::deletecity(string cityname) {
     if (checkcity(cityname)) {
         // Delete edges associated with cityname
