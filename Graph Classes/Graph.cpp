@@ -73,7 +73,7 @@ void graph:: addedge(string city1, string city2, int km)
 }
 
 bool graph:: checkedge(string city1, string city2) {
-    if (checkcity(city1)&&checkcity(city2)) {
+    if (checkcity(city1)) {
         for (auto edge : mymap[city1]) {
             if (edge.first == city2) {
                 return true;
