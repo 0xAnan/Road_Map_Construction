@@ -50,6 +50,7 @@ public:
     GraphGUI(QWidget *parent = nullptr) : QWidget(parent) {
         setMinimumSize(300, 300);
     }
+
     QVector<QPoint> points;  // Stores the points in the graph
     std::map<QPoint, QString, PointComparator> pointNames;  // Stores the names of the points
     QList<QPair<QPair<QPoint, QPoint>, double>> lines;  // Stores the lines in the graph
@@ -74,7 +75,7 @@ public:
         }
     }
 
-    void loadFromFileGUI(const QString &filename) {
+    void Load_GUI_Data(const QString &filename) {
         QFile file(filename);
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
             return;
@@ -250,7 +251,7 @@ protected:
     }
 
 
-    // Event handler for paint events
+
     // Event handler for paint events
     void paintEvent(QPaintEvent *event) override {
         QPainter painter(this);
@@ -287,7 +288,28 @@ protected:
 
         // Draw points
         for (const auto &point : points) {
-            painter.drawEllipse(point, 5, 5);
+            // Check if the point is connected to any other point
+            bool isConnected = false;
+            for (const auto &line : lines) {
+                if (line.first.first == point || line.first.second == point) {
+                    isConnected = true;
+                    break;
+                }
+            }
+
+            // Draw the point as a filled circle
+            int radius = 5;  // Adjust this value to change the size of the circle
+            if (isConnected) {
+                painter.setBrush(Qt::green);
+            } else {
+                painter.setBrush(Qt::gray);
+            }
+            painter.drawEllipse(point, radius, radius);
+
+            // Draw the point name
+            pen.setColor(Qt::white);
+            painter.setPen(pen);
+            painter.setBrush(Qt::NoBrush);  // Reset the brush before drawing text
             auto it = pointNames.find(point);
             if (it != pointNames.end()) {
                 painter.drawText(point + QPoint(10, -10), it->second);
@@ -331,18 +353,11 @@ protected:
         QWidget::resizeEvent(event);
     }
 
-
-
-
-
 private:
     QPoint *draggedPoint = nullptr;  // The point currently being dragged
 
     // Add a random point to the graph
     void addGraphPoints() {
-        //Graph.addcity("alex");
-        //Graph.addcity("cairo");
-        //Graph.addcity("zefta");
         for (auto city : Graph.mymap) {
             qreal margin = 0.1;
             qreal x = QRandomGenerator::global()->generateDouble() * (1.0 - 2*margin) + margin;
@@ -434,7 +449,6 @@ GraphWidget(QWidget *parent = nullptr) : QWidget(parent)
                       "QPushButton:hover {background-color: #45a049;}";
 
 
-
     QPushButton *addButton = new QPushButton(tr("Add City"), this);
     addButton->setStyleSheet(buttonStyle);
     connect(addButton, &QPushButton::clicked, this, &GraphWidget::addPoint);
@@ -496,9 +510,10 @@ GraphWidget(QWidget *parent = nullptr) : QWidget(parent)
 
 }
 
-    void saveGraphData(const QString &filename) {
+    void Save_GUI_Data(const QString &filename) {
     graph->saveToFileGUI(filename);
 }
+
     signals:
         void exitToMainMenu();
 public slots:
@@ -774,7 +789,7 @@ public slots:
     graph->update();
 }
 
-    void saveToFile(const string &filename) {
+    void Save_Graph_Data(const string &filename) {
     ofstream file(filename);
     if (!file.is_open())
         return;
@@ -794,7 +809,7 @@ public slots:
     }
 }
 
-    void loadFromFile(const string &filename ) {
+    void load_Graph_Data(const string &filename ) {
     ifstream file(filename);
     if (!file.is_open())
         return;
@@ -815,23 +830,14 @@ public slots:
     }
 }
 
-    void closeEvent(QCloseEvent *event) override {
-    cout<<"Close\n";
-    graph->saveToFileGUI("../Data/GUIgraph_data.txt");
-    // ... (add cities and edges to g)
-
-    event->accept();
-}
-
     void showEvent(QShowEvent *event) override {
-    cout<<"Open\n";
-    graph->loadFromFileGUI("../Data/GUIgraph_data.txt");
-    loadFromFile("../Data/graph_data.txt");
+    cout<<"Fetching Data\n";
+    graph->Load_GUI_Data("../Data/GUIgraph_data.txt");
+    load_Graph_Data("../Data/graph_data.txt");
     QWidget::showEvent(event);
 }
 
 
 private:
     GraphGUI *graph;
-
 };

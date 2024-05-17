@@ -1,5 +1,8 @@
 #include"Headers/Graph.h"
 #include"Headers/User_Interface.h"
+#include <list>
+#include <numeric>
+#include <numeric>
 #include <string>
 /*
 Cases:
@@ -251,8 +254,15 @@ string User_Inrerface::Dijkstra(string nameofcity, graph &myGraph)
 {
     if (myGraph.checkcity(nameofcity))
     {
-        string s = myGraph.Dijkstra(nameofcity).first;
+        //string s = accumulate(myGraph.Dijkstra(nameofcity).second.begin(),myGraph.Dijkstra(nameofcity).second.end(),"");
+         string s = myGraph.Dijkstra(nameofcity).first;
         cout<<"Using Dijkstra's Algorithm:\n"<<s<<endl;
+        std::list<std::string> myList = myGraph.Dijkstra(nameofcity).second;
+
+        for(const auto& str : myList) {
+            std::cout << str << std::endl;
+        }
+
         return s;
     }
     return "1";

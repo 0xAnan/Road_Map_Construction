@@ -13,12 +13,13 @@ int main(int argc, char *argv[])
     widget->resize(800, 600);
 
     QObject::connect(widget, &GraphWidget::exitToMainMenu, [&] {
-    widget->saveGraphData("../Data/GUIgraph_data.txt");  // Save the graph data
-    widget->saveToFile("../Data/graph_data.txt");
-    widget->hide();
-    if (welcomePage.exec() == QDialog::Accepted) {
-        widget->show();
-    }
+        cout<<"Saving Data\n";
+        widget->Save_GUI_Data("../Data/GUIgraph_data.txt");
+        widget->Save_Graph_Data("../Data/graph_data.txt");
+        widget->hide();
+        if (welcomePage.exec() == QDialog::Accepted) {
+            widget->show();
+        }
 });
 
 
