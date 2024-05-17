@@ -27,7 +27,7 @@ bool graph::checkcity(string cityname) {
 void graph::update_cityname(string cityname, string newname) {
     if(checkcity(cityname) && !checkcity(newname)) {
         auto it = mymap.find(cityname);
-        if(it != mymap.end()) {
+       // if(it != mymap.end()) {
             // Copy the edges and erase the old city
             list<pair<string, int>> edges = it->second;
             mymap.erase(it);
@@ -41,7 +41,7 @@ void graph::update_cityname(string cityname, string newname) {
                     }
                 }
             }
-        }
+        //}
     }
 }
 
@@ -72,7 +72,7 @@ void graph:: addedge(string city1, string city2, int km)
 }
 
 bool graph:: checkedge(string city1, string city2) {
-    if (checkcity(city1)) {
+    if (checkcity(city1)&&checkcity(city2)) {
         for (auto edge : mymap[city1]) {
             if (edge.first == city2) {
                 return true;
@@ -125,6 +125,20 @@ void graph:: clearmap(){
         mymap.clear();
     citycount=0;
 
+}
+int graph :: totaldistance() {
+
+    int totaldistance=0;
+    for (auto m : mymap)
+    {
+        list<pair<string, int>> distance = m.second;
+        for (auto d : distance)
+        {
+            totaldistance += d.second;
+
+        }
+    }
+    return totaldistance/2;
 }
 
 void graph:: printadjcentlist()

@@ -19,6 +19,7 @@ public:
     unordered_map<string, list<pair<string, int>>> mymap;
     int citycount=0;
     bool checkmap();
+    int  totaldistance();
     bool checkedge(string city1, string city2);
     void addedge(string city1, string city2, int km);
     void delete_edge(string city1, string city2);
