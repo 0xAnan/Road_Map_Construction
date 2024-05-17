@@ -1,8 +1,5 @@
 #include"Headers/Graph.h"
 #include"Headers/User_Interface.h"
-#include <list>
-#include <numeric>
-#include <numeric>
 #include <string>
 /*
 Cases:
@@ -20,6 +17,7 @@ int User_Inrerface::AddCity(string nameOfCity , graph& myGraph)
     }
     cout<<"City Already Exists\n";
     return 2;
+
 }
 /*
 Cases:
@@ -209,6 +207,14 @@ int User_Inrerface::UpdateName(string nameOfCity1, string nameOfCity2, graph& my
         return 1;
     }
 }
+int User_Inrerface::totalDistance(graph &myGraph) {
+    if(myGraph.totaldistance()>0)
+    {
+        return myGraph.totaldistance();
+    }
+    else
+        return 1;
+}
 /*
 1 fail
 0 success
@@ -254,10 +260,8 @@ string User_Inrerface::Dijkstra(string nameofcity, graph &myGraph)
 {
     if (myGraph.checkcity(nameofcity))
     {
-        //string s = accumulate(myGraph.Dijkstra(nameofcity).second.begin(),myGraph.Dijkstra(nameofcity).second.end(),"");
-         string s = myGraph.Dijkstra(nameofcity);
-        cout<<"Using Dijkstra's Algorithm:\n"<<endl;
-
+        string s = myGraph.Dijkstra(nameofcity).first;
+        cout<<"Using Dijkstra's Algorithm:\n"<<s<<endl;
         return s;
     }
     return "1";

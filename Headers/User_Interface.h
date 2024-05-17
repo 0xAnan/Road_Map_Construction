@@ -14,6 +14,7 @@ public:
     int EditEdge(string nameOfCity1, string nameOfCity2, int distance, graph& myGraph);
     int UpdateName(string nameOfCity1, string nameOfCity2, graph& myGraph);
     int ClearMap( graph& myGraph);
+    int totalDistance(graph& myGraph);
     string TraverseBfs(string nameofcity, graph &myGraph);
 
     string Dijkstra(string nameofcity, graph &myGraph);
@@ -21,4 +22,5 @@ public:
     pair<string, list<string>> Prims(graph &myGraph);
 
     string TraverseDfs(string nameofcity, graph &myGraph);
+    void ddd(graph myGraph);
 };
