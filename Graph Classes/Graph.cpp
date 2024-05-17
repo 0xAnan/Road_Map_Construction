@@ -249,7 +249,7 @@ string graph::Dijkstra(string startcity){
             {
                 if (first == 0) {
                     result  <<path ;
-                    first++;
+                    first = 1;
                 }else
                     result <<" -> " <<path ;
             }
