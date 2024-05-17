@@ -727,8 +727,8 @@ public slots:
             cityPairs << QString::fromStdString(str);
         }
         graph->highlightLines(cityPairs);
-        QString city = QString::fromStdString(UI.Prims(Graph).first);
-        QMessageBox::information(this, tr("Prim's Algorithm"), city);
+        QString MST = QString::fromStdString("Total Weight Of MST: "+UI.Prims(Graph).first);
+        QMessageBox::information(this, tr("Prim's Algorithm"), MST);
         cout<<"Prim's Algorithm\n";
     }
     else if (ok && !algorithmName.isEmpty() ) {
