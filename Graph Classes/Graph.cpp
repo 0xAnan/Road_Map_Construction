@@ -210,7 +210,7 @@ string graph :: BFS(string startcity)
     return result;
     }
 
-pair<string,list<string>> graph :: Dijkstra(string startcity){
+string graph :: Dijkstra(string startcity){
     priority_queue<pair<int,string>,vector<pair<int,string>>, greater<pair<int,string>>> pq;
     unordered_map<string,int>distances;
     unordered_map<string,list<string>>paths;
@@ -254,12 +254,12 @@ pair<string,list<string>> graph :: Dijkstra(string startcity){
             result<<" shortest Paths:"<<endl;
             for(const auto &path: paths[city_name])
             {
-                result <<"   - "<<path<<" -> ";
+                result <<"   - "<<path<<endl;
             }
         }
     }
     }
-    return make_pair(result.str(),paths[startcity]);
+    return result.str();
     }
 
 string graph::findMinKey(const unordered_map<string, int>& key, const unordered_map<string, bool>& visited) {
