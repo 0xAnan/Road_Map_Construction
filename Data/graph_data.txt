@@ -1,13 +1,16 @@
-Mansoura
-Luxur
-Aswan
-Cairo
-Alex
-Giza
+F
+E
+B
+D
+C
+A
 EDGES
-Aswan Giza 10
-Aswan Luxur 5
-Cairo Giza 5
-Alex Aswan 2
-Alex Giza 4
-Giza Mansoura 25
+E F 5
+B C 4
+B F 12
+B E 2
+D E 4
+C D 25
+C E 10
+A B 1
+A C 5

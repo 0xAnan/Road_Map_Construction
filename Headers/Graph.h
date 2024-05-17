@@ -10,17 +10,6 @@
 #include <sstream>
 #include<queue>
 using namespace std;
-class City
-{
-public:
-    string cityname;
-    City();
-    City(string cname);
-    string getCityname();
-    string setCityname(string cname);
-    void update_cityname(string cname);
-};
-
 
 
 
@@ -47,6 +36,8 @@ public:
     string Dijkstra(string startcity);
     string findMinKey(const unordered_map<string, int>& key, const unordered_map<string, bool>& visited);
     pair<string, list<string>> Prims(unordered_map<string, list<pair<string, int>>> mymap);
+
+    void Kruskal();
 
     string topological_sort();
 };

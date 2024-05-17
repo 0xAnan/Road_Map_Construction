@@ -9,21 +9,17 @@
 #include <QComboBox>
 #include <QDialog>
 #include <QLineEdit>
-#include <QContextMenuEvent>
 #include <QCursor>
 #include <QMessageBox>
 #include <QFile>
 #include <QTextStream>
 #include <QCloseEvent>
-#include <QGroupBox>
 
 #include <map>
 #include <cmath>
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <sstream>
-#include <vector>
 #include <iostream>
 #include "Headers/Graph.h"
 #include "Headers/User_Interface.h"
@@ -250,8 +246,6 @@ protected:
         }
     }
 
-
-
     // Event handler for paint events
     void paintEvent(QPaintEvent *event) override {
         QPainter painter(this);
@@ -317,16 +311,6 @@ protected:
         }
     }
 
-
-    // Event handler for show events
-    void showEvent(QShowEvent *event) override
-    {
-        // Add random points if none exist
-        if (points.isEmpty()) {
-            addGraphPoints();
-        }
-    }
-
     // Event handler for resize events
     void resizeEvent(QResizeEvent *event) override
     {
@@ -355,20 +339,6 @@ protected:
 
 private:
     QPoint *draggedPoint = nullptr;  // The point currently being dragged
-
-    // Add a random point to the graph
-    void addGraphPoints() {
-        for (auto city : Graph.mymap) {
-            qreal margin = 0.1;
-            qreal x = QRandomGenerator::global()->generateDouble() * (1.0 - 2*margin) + margin;
-            qreal y = QRandomGenerator::global()->generateDouble() * (1.0 - 2*margin) + margin;
-            QPointF point(x, y);
-            string name = city.first;
-            QString qStr = QString::fromStdString(name);
-            relativePoints.push_back(qMakePair(point, qStr));
-            updatePoints();
-        }
-    }
 
     // Update the positions of the points
     void updatePoints() {
@@ -776,6 +746,11 @@ public slots:
                 cout<<"Depth First Search\n";
             }
             else if (algorithmName=="Dijkestra's Algorithm") {
+                QStringList cityPairs;
+                for (const auto &str : UI.Prims(Graph).second) {
+                    cityPairs << QString::fromStdString(str);
+                }
+                graph->highlightLines(cityPairs);
                 QString city ="Shortest Distances From "+pointName+"\n"+QString::fromStdString(UI.Dijkstra(pointName.toStdString(),Graph));
                 QMessageBox::information(this, tr("Dijkestra"), city);
                 cout<<"Dijkestra's Algorithm\n";

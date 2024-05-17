@@ -2,14 +2,6 @@
 
 
 
-
-City::City() {
-        cityname = " ";
-    }
-City::City(string cname) {
-    cityname = cname;
-}
-
 //----------------------------------------------------CITY----------------------------------------------------//
 void graph ::addcity(string newcity) {
     mymap.emplace(newcity,list<pair<string,int>>());
@@ -182,7 +174,7 @@ string graph::DFS(string start_city)
     return output;
 }
 
-string graph :: BFS(string startcity)
+string graph::BFS(string startcity)
     {
         unordered_map<string,bool>visted;
         queue<string>q;
@@ -210,7 +202,7 @@ string graph :: BFS(string startcity)
     return result;
     }
 
-string graph :: Dijkstra(string startcity){
+string graph::Dijkstra(string startcity){
     priority_queue<pair<int,string>,vector<pair<int,string>>, greater<pair<int,string>>> pq;
     unordered_map<string,int>distances;
     unordered_map<string,list<string>>paths;
@@ -248,14 +240,20 @@ string graph :: Dijkstra(string startcity){
     if(distance == numeric_limits<int>::max()){
     result << city_name << " : unreachable" <<endl;
     }else{
-     result << city_name << ": "<<distance<<" KM" <<endl;
+     result << endl<<city_name << " : "<<distance<<"KM" <<endl;
         if(!paths[city_name].empty())
         {
-            result<<" shortest Paths:"<<endl;
+            result<<"Shortest Path:"<<endl;
+            bool first =0;
             for(const auto &path: paths[city_name])
             {
-                result <<"   - "<<path<<endl;
+                if (first == 0) {
+                    result  <<path ;
+                    first++;
+                }else
+                    result <<" -> " <<path ;
             }
+            result << endl;
         }
     }
     }
