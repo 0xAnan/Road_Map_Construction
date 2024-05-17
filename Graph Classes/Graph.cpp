@@ -254,7 +254,7 @@ pair<string,list<string>> graph :: Dijkstra(string startcity){
             result<<" shortest Paths:"<<endl;
             for(const auto &path: paths[city_name])
             {
-                result <<"   - "<<path<<endl;
+                result <<"   - "<<path<<" -> ";
             }
         }
     }
