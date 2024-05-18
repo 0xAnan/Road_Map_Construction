@@ -123,19 +123,20 @@ void graph:: clearmap(){
 
 }
 
-int graph :: totaldistance() {
-
+int graph:: totaldistance()
+{
     int totaldistance=0;
     for (auto m : mymap)
     {
         list<pair<string, int>> distance = m.second;
         for (auto d : distance)
         {
-            totaldistance += d.second;
-
+            if (m.first < d.first) {
+                totaldistance += d.second;
+            }
         }
     }
-    return totaldistance/2;
+    return totaldistance;
 }
 
 void graph:: printadjcentlist()
