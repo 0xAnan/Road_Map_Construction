@@ -819,8 +819,6 @@ public slots:
     graph->Load_GUI_Data("../Data/GUIgraph_data.txt");
     load_Graph_Data("../Data/graph_data.txt");
     Graph.printadjcentlist();
-    cout<<"----------------------\n";
-    Graph.printadjcentlist();
     QWidget::showEvent(event);
 }
 
