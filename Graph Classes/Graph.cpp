@@ -58,11 +58,9 @@ void graph:: addedge(string city1, string city2, int km)
 }
 
 bool graph:: checkedge(string city1, string city2)    {
-    if (checkcity(city1)) {
-        for (auto edge : mymap[city1]) {
-            if (edge.first == city2) {
-                return true;
-            }
+    for (auto edge : mymap[city1]) {
+        if (edge.first == city2) {
+            return true;
         }
     }
     return false;
@@ -128,7 +126,6 @@ int graph:: totaldistance()
 void graph::printadjcentlist()
 {
     if (mymap.empty()) {
-
         cout << "the cities are not implemented yet .." << endl;
     }
     else
