@@ -17,25 +17,46 @@ using namespace std;
 class graph{
 public:
     unordered_map<string, list<pair<string, int>>> mymap;
-    int citycount=0;
-    bool checkmap();
-    int  totaldistance();
-    bool checkedge(string city1, string city2);
-    void addedge(string city1, string city2, int km);
-    void delete_edge(string city1, string city2);
-    bool checkcity(string cityname);
+    //----------------------------------------------------CITY----------------------------------------------------//
     void addcity(string newcity);
+
+    bool checkcity(string cityname);
+
     void deletecity(string cityname);
-    int number_of_cities();
-    void printadjcentlist();
-    void clearmap();
+
     void update_cityname(string cityname,string newname);
-	void update_edge(string city1,string city2,int km);
+    //----------------------------------------------------EDGE----------------------------------------------------//
+    void addedge(string city1, string city2, int km);
+
+    bool checkedge(string city1, string city2);
+
+    void delete_edge(string city1, string city2);
+
+    void update_edge(string city1,string city2,int km);
+
+    //-----------------------------------------------------MAP-----------------------------------------------------//
+    bool checkmap();
+
+    void clearmap();
+
+    int  totaldistance();
+
+    void printadjcentlist();
+
+    int number_of_cities();
+
+    int citycount=0;
+
+    //-----------------------------------------------------ALGORITHMS---------------------------------------------------//
 
     string DFS(string start_city);
+
     string BFS(string startcity);
+
     string Dijkstra(string startcity);
+
     string findMinKey(const unordered_map<string, int>& key, const unordered_map<string, bool>& visited);
+
     pair<string, list<string>> Prims(unordered_map<string, list<pair<string, int>>> mymap);
 
     void Kruskal();

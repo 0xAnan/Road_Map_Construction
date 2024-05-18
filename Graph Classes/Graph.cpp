@@ -8,10 +8,6 @@ void graph ::addcity(string newcity) {
     citycount++;
 }
 
-int graph::number_of_cities(){
-    return citycount;
-}
-
 bool graph::checkcity(string cityname) {
     transform(cityname.begin(), cityname.end(), cityname.begin(), ::tolower);
     for (const auto& pair : mymap) {
@@ -22,27 +18,6 @@ bool graph::checkcity(string cityname) {
         }
     }
     return false;
-}
-
-void graph::update_cityname(string cityname, string newname) {
-    if(checkcity(cityname) && !checkcity(newname)) {
-        auto it = mymap.find(cityname);
-       // if(it != mymap.end()) {
-            // Copy the edges and erase the old city
-            list<pair<string, int>> edges = it->second;
-            mymap.erase(it);
-            mymap[newname] = edges;
-
-            // Update the city name in all adjacency lists
-            for(auto& pair : mymap) {
-                for(auto& edge : pair.second) {
-                    if(edge.first == cityname) {
-                        edge.first = newname;
-                    }
-                }
-            }
-        //}
-    }
 }
 
 void graph::deletecity(string cityname) {
@@ -64,6 +39,27 @@ void graph::deletecity(string cityname) {
     }
 }
 
+void graph::update_cityname(string cityname, string newname) {
+    if(checkcity(cityname) && !checkcity(newname)) {
+        auto it = mymap.find(cityname);
+        // if(it != mymap.end()) {
+        // Copy the edges and erase the old city
+        list<pair<string, int>> edges = it->second;
+        mymap.erase(it);
+        mymap[newname] = edges;
+
+        // Update the city name in all adjacency lists
+        for(auto& pair : mymap) {
+            for(auto& edge : pair.second) {
+                if(edge.first == cityname) {
+                    edge.first = newname;
+                }
+            }
+        }
+        //}
+    }
+}
+
 //----------------------------------------------------EDGE----------------------------------------------------//
 void graph:: addedge(string city1, string city2, int km)
 {
@@ -71,7 +67,7 @@ void graph:: addedge(string city1, string city2, int km)
     mymap[city2].push_back(make_pair(city1, km));
 }
 
-bool graph:: checkedge(string city1, string city2) {
+bool graph:: checkedge(string city1, string city2)    {
     if (checkcity(city1)) {
         for (auto edge : mymap[city1]) {
             if (edge.first == city2) {
@@ -126,6 +122,7 @@ void graph:: clearmap(){
     citycount=0;
 
 }
+
 int graph :: totaldistance() {
 
     int totaldistance=0;
@@ -156,7 +153,12 @@ void graph:: printadjcentlist()
         }
     }
 }
-//-----------------------------------------------------ALGORITHMS-----------------------------------------------//
+
+int graph::number_of_cities(){
+    return citycount;
+}
+
+//-----------------------------------------------------ALGORITHMS-----------------------------------------------------//
 string graph::DFS(string start_city)
 {
     unordered_set<string> visited;
