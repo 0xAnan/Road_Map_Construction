@@ -1,6 +1,6 @@
 #include"Headers/Graph.h"
 #include"Headers/User_Interface.h"
-#include <string>
+
 /*
 Cases:
 1 fail
@@ -207,6 +207,14 @@ int User_Inrerface::UpdateName(string nameOfCity1, string nameOfCity2, graph& my
         return 1;
     }
 }
+
+string User_Inrerface::DisplayTotalDistance(graph Graph) {
+if (Graph.checkmap()) {
+    return std::to_string(Graph.totaldistance());
+}
+    return "1";
+}
+
 int User_Inrerface::totalDistance(graph &myGraph) {
     if(myGraph.totaldistance()>0)
     {
@@ -260,7 +268,7 @@ string User_Inrerface::Dijkstra(string nameofcity, graph &myGraph)
 {
     if (myGraph.checkcity(nameofcity))
     {
-        string s = myGraph.Dijkstra(nameofcity).first;
+        string s = myGraph.Dijkstra(nameofcity);
         cout<<"Using Dijkstra's Algorithm:\n"<<s<<endl;
         return s;
     }

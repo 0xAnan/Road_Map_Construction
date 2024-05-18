@@ -59,8 +59,5 @@ public:
 
     pair<string, list<string>> Prims(unordered_map<string, list<pair<string, int>>> mymap);
 
-    void Kruskal();
-
-    string topological_sort();
 };
  //GRAPH_H

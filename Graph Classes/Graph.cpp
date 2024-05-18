@@ -1,7 +1,5 @@
 #include "Headers/Graph.h"
 
-
-
 //----------------------------------------------------CITY----------------------------------------------------//
 void graph ::addcity(string newcity) {
     mymap.emplace(newcity,list<pair<string,int>>());
@@ -21,42 +19,34 @@ bool graph::checkcity(string cityname) {
 }
 
 void graph::deletecity(string cityname) {
-    if (checkcity(cityname)) {
-        // Delete edges associated with cityname
-        for (auto& pair : mymap) {
-            string adjacentCity = pair.first;
-            if (adjacentCity != cityname) {
-                // If there is an edge from adjacentCity to cityname, delete it
-                if (checkedge(adjacentCity, cityname)) {
-                    delete_edge(adjacentCity, cityname);
-                }
+    // Delete edges associated with cityname
+    for (auto& pair : mymap) {
+        string adjacentCity = pair.first;
+        if (adjacentCity != cityname) {
+            // If there is an edge from adjacentCity to cityname, delete it
+            if (checkedge(adjacentCity, cityname)) {
+                delete_edge(adjacentCity, cityname);
             }
         }
-
-        // Delete cityname from the map
-        mymap.erase(cityname);
-    } else {
     }
+    // Delete cityname from the map
+    mymap.erase(cityname);
 }
 
 void graph::update_cityname(string cityname, string newname) {
-    if(checkcity(cityname) && !checkcity(newname)) {
-        auto it = mymap.find(cityname);
-        // if(it != mymap.end()) {
-        // Copy the edges and erase the old city
-        list<pair<string, int>> edges = it->second;
-        mymap.erase(it);
-        mymap[newname] = edges;
+    auto it = mymap.find(cityname);
+    // Copy the edges and erase the old city
+    list<pair<string, int>> edges = it->second;
+    mymap.erase(it);
+    mymap[newname] = edges;
 
-        // Update the city name in all adjacency lists
-        for(auto& pair : mymap) {
-            for(auto& edge : pair.second) {
-                if(edge.first == cityname) {
-                    edge.first = newname;
-                }
+    // Update the city name in all adjacency lists
+    for(auto& pair : mymap) {
+        for(auto& edge : pair.second) {
+            if(edge.first == cityname) {
+                edge.first = newname;
             }
         }
-        //}
     }
 }
 
@@ -98,10 +88,7 @@ void graph:: delete_edge(string city1, string city2) {
 }
 
 void graph::update_edge(string city1,string city2,int km){
-
-    if (checkedge(city1,city2)) {
-        delete_edge(city1, city2);
-    }
+    delete_edge(city1, city2);
     mymap[city1].push_back(make_pair(city2, km));
     mymap[city2].push_back(make_pair(city1, km));
 }
@@ -117,8 +104,7 @@ bool graph::checkmap() {
 }
 
 void graph:: clearmap(){
-    if(checkmap())
-        mymap.clear();
+    mymap.clear();
     citycount=0;
 
 }
@@ -139,18 +125,34 @@ int graph:: totaldistance()
     return totaldistance;
 }
 
-void graph:: printadjcentlist()
+void graph::printadjcentlist()
 {
-    for (auto c : mymap)
+    if (mymap.empty()) {
+
+        cout << "the cities are not implemented yet .." << endl;
+    }
+    else
     {
-        string city = c.first;
-        list<pair<string, int>> details = c.second;
-        for (auto dis : details)
+        for (auto c : mymap)
         {
-            cout << " destenation: " << dis.first << endl;
-            cout << " distance from " << c.first << " to " << dis.first;
-            cout << dis.second << " KM" << endl;
-            cout << "-------------------------------" << endl;
+            string city = c.first;
+            list<pair<string, int>> details = c.second;
+            if (mymap[city].empty())
+            {
+                cout << " "<<city << " --has no edges--" << endl;
+                cout << "-------------------------------" << endl;
+            }
+            else
+            {
+                for (auto dis : details)
+                {
+                    if (c.first < dis.first) {
+                        cout << " distance from " << c.first << " to " << dis.first << " ";
+                        cout << dis.second << " KM" << endl;
+                        cout << "-------------------------------" << endl;
+                    }
+                }
+            }
         }
     }
 }
@@ -192,10 +194,10 @@ string graph::DFS(string start_city)
 
 string graph::BFS(string startcity)
     {
-        unordered_map<string,bool>visted;
+        unordered_map<string,bool>visited;
         queue<string>q;
         string result;
-        visted[startcity]=true;
+        visited[startcity]=true;
         q.push(startcity);
         while(! q.empty()){
             string currentcity=q.front();
@@ -204,9 +206,9 @@ string graph::BFS(string startcity)
             for(auto neighbor : mymap[currentcity])
             {
                 string neighborcity=neighbor.first;
-                if(!visted[neighborcity])
+                if(!visited[neighborcity])
                 {
-                    visted[neighborcity]=true;
+                    visited[neighborcity]=true;
                     q.push(neighborcity);
                 }
             }

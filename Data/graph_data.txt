@@ -1,16 +1,16 @@
-A
-C
-D
-B
-E
-F
+Siwa
+Aswan
+Alexandria
+Cairo
+Luxur
+Giza
 EDGES
-A B 1
-A C 5
-C D 25
-C E 10
-D E 4
-B C 4
-B F 12
-B E 2
-E F 5
+Aswan Luxur 5
+Alexandria Giza 4
+Alexandria Aswan 12
+Alexandria Luxur 2
+Alexandria Cairo 1
+Cairo Giza 5
+Luxur Siwa 4
+Giza Siwa 25
+Giza Luxur 10

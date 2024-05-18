@@ -449,6 +449,11 @@ GraphWidget(QWidget *parent = nullptr) : QWidget(parent)
     connect(editLineButton, &QPushButton::clicked, this, &GraphWidget::editLine);
     sidebarLayout->addWidget(editLineButton);
 
+    QPushButton *displayDistanceButton = new QPushButton(tr("Display Total Distance"), this);
+    displayDistanceButton->setStyleSheet(buttonStyle);
+    connect(displayDistanceButton, &QPushButton::clicked, this, &GraphWidget::displayDistance);
+    sidebarLayout->addWidget(displayDistanceButton);
+
     QPushButton *displayAlgorithmsButton = new QPushButton(tr("Display Algorithms"), this);
     displayAlgorithmsButton->setStyleSheet(buttonStyle);
     connect(displayAlgorithmsButton, &QPushButton::clicked, this, &GraphWidget::displayAlgorithms);
@@ -763,6 +768,10 @@ public slots:
     graph->highlightedLines.clear();
     graph->update();
 }
+    void displayDistance() {
+    QString TotalDistance = QString::fromStdString("Total Distance Of The Graph: "+UI.DisplayTotalDistance(Graph));
+    QMessageBox::information(this, tr("Total Distance"), TotalDistance);
+}
 
     void Save_Graph_Data(const string &filename) {
     ofstream file(filename);
@@ -809,6 +818,9 @@ public slots:
     cout<<"Fetching Data\n";
     graph->Load_GUI_Data("../Data/GUIgraph_data.txt");
     load_Graph_Data("../Data/graph_data.txt");
+    Graph.printadjcentlist();
+    cout<<"----------------------\n";
+    Graph.printadjcentlist();
     QWidget::showEvent(event);
 }
 
